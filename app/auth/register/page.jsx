@@ -10,7 +10,7 @@ import { Eye, EyeOff, BookOpen, Globe, CheckCircle2, XCircle } from 'lucide-reac
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useAuth } from '@/src/hooks/useAuth'
+import { signIn, signUp, signInWithGoogle } from '@/lib/auth-client'
 import toast from 'react-hot-toast'
 
 const registerSchema = z
@@ -40,7 +40,7 @@ function PasswordRule({ met, label }) {
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { registerWithEmail, signInWithGoogle } = useAuth()
+  
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
@@ -55,7 +55,7 @@ export default function RegisterPage() {
   const onSubmit = async ({ name, email, password }) => {
     setLoading(true)
     try {
-      const result = await registerWithEmail({ name, email, password })
+      const result = await signUp.email({ name, email, password })
       if (result?.error) {
         toast.error(result.error.message || 'Registration failed')
       } else {
@@ -72,7 +72,17 @@ export default function RegisterPage() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true)
     try {
-      await signInWithGoogle()
+      // Use the better-auth client social sign-in to trigger Google OAuth
+      // include a callbackURL so the server redirects back to the app
+      const result = await signIn.social({
+        provider: 'google',
+        callbackURL: `${typeof window !== 'undefined' ? window.location.origin : ''}/`,
+      })
+
+      if (result?.error) {
+        toast.error(result.error.message || 'Google sign up failed.')
+        setGoogleLoading(false)
+      }
     } catch {
       toast.error('Google sign up failed.')
       setGoogleLoading(false)
