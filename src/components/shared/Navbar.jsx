@@ -112,15 +112,21 @@ export function Navbar() {
             <>
               {isAuthenticated ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.image} alt={user?.name || 'User'} />
-                        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                          {initials}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
+                  <DropdownMenuTrigger
+                    render={
+                      <button
+                        type="button"
+                        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full outline-none ring-ring focus-visible:ring-2"
+                        aria-label="User menu"
+                      />
+                    }
+                  >
+                    <Avatar className="h-8 w-8 pointer-events-none">
+                      <AvatarImage src={user?.image} alt={user?.name || 'User'} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
                     <div className="px-2 py-1.5">
@@ -173,8 +179,13 @@ export function Navbar() {
           {/* Mobile menu */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger
-              className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Open menu"
+              render={
+                <button
+                  type="button"
+                  className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Open menu"
+                />
+              }
             >
               <Menu className="h-5 w-5" />
             </SheetTrigger>
