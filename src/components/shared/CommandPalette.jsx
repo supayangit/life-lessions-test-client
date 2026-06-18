@@ -162,12 +162,15 @@ export function CommandPalette({ open, onClose }) {
   )
 }
 
-/**
- * Hook to open/close the command palette via ⌘K / Ctrl+K
- */
-export function useCommandPalette() {
+import { createContext, useContext } from 'react'
+
+// ── Shared context so multiple consumers share one open/close state ────────
+const CommandPaletteContext = createContext({ open: false, setOpen: () => {} })
+
+export function CommandPaletteProvider({ children }) {
   const [open, setOpen] = useState(false)
 
+  // Global ⌘K / Ctrl+K shortcut registered once at the provider level
   useEffect(() => {
     const handler = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -179,5 +182,17 @@ export function useCommandPalette() {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
-  return { open, setOpen }
+  return (
+    <CommandPaletteContext.Provider value={{ open, setOpen }}>
+      {children}
+      <CommandPalette open={open} onClose={() => setOpen(false)} />
+    </CommandPaletteContext.Provider>
+  )
+}
+
+/**
+ * Hook to open/close the shared command palette.
+ */
+export function useCommandPalette() {
+  return useContext(CommandPaletteContext)
 }

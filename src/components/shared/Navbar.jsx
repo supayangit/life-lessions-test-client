@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { ThemeToggle } from './ThemeToggle'
-import { CommandPalette, useCommandPalette } from './CommandPalette'
+import { useCommandPalette } from './CommandPalette'
 import { useAuth } from '@/src/hooks/useAuth'
 import { useRole } from '@/src/hooks/useRole'
 import { cn } from '@/lib/utils'
@@ -77,7 +77,6 @@ export function Navbar() {
 
   return (
     <>
-    <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
