@@ -4,6 +4,14 @@ import { motion } from 'framer-motion'
 import { Heart, Users, Lightbulb, Shield } from 'lucide-react'
 import { Container } from '@/src/components/shared/Container'
 import { SectionHeading } from '@/src/components/shared/SectionHeading'
+import { AnimatedCounter } from '@/src/components/shared/AnimatedCounter'
+
+const STATS = [
+  { value: 1200, suffix: '+', label: 'Members' },
+  { value: 350, suffix: '+', label: 'Lessons' },
+  { value: 42, suffix: '', label: 'Categories' },
+  { value: 98, suffix: '%', label: 'Satisfaction' },
+]
 
 const CARDS = [
   {
@@ -58,6 +66,18 @@ export function WhyLearnFromLife() {
           title="Why Learning From Life Matters"
           subtitle="Experience is humanity's oldest teacher. Here is why we built a home for it."
         />
+
+        {/* Animated stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+          {STATS.map((stat) => (
+            <div key={stat.label} className="rounded-xl border border-border bg-card p-4 text-center">
+              <p className="text-2xl font-bold text-primary font-serif">
+                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
 
         <motion.div
           variants={containerVariants}

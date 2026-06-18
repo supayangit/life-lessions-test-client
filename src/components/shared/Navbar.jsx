@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { BookOpen, Menu, X, Plus, BookMarked, LayoutDashboard, LogOut, User } from 'lucide-react'
+import { BookOpen, Menu, X, Plus, BookMarked, LayoutDashboard, LogOut, User, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { ThemeToggle } from './ThemeToggle'
+import { CommandPalette, useCommandPalette } from './CommandPalette'
 import { useAuth } from '@/src/hooks/useAuth'
 import { useRole } from '@/src/hooks/useRole'
 import { cn } from '@/lib/utils'
@@ -48,6 +49,7 @@ export function Navbar() {
   const { user, isAuthenticated, isPending, logout } = useAuth()
   const { isFree } = useRole()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
 
   const visibleLinks = NAV_LINKS.filter((link) => {
     if (link.protected && !isAuthenticated) return false
@@ -74,6 +76,8 @@ export function Navbar() {
     : 'U'
 
   return (
+    <>
+    <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/90 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
@@ -91,6 +95,18 @@ export function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
+          {/* Command palette trigger */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCmdOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2.5 text-xs"
+            aria-label="Open command palette (Ctrl+K)"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span className="hidden md:inline">Search</span>
+            <kbd className="hidden md:inline text-[10px] font-mono bg-muted border border-border rounded px-1 py-0.5 ml-1">⌘K</kbd>
+          </Button>
           <ThemeToggle />
 
           {/* Auth buttons */}
@@ -241,5 +257,6 @@ export function Navbar() {
         </div>
       </div>
     </header>
+    </>
   )
 }

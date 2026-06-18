@@ -5,6 +5,17 @@ import { AuthProvider } from './AuthProvider'
 import { QueryProvider } from './QueryProvider'
 import { ThemeProvider } from './ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { CommandPalette, useCommandPalette } from '@/src/components/shared/CommandPalette'
+
+function CommandPaletteWrapper({ children }) {
+  const { open, setOpen } = useCommandPalette()
+  return (
+    <>
+      {children}
+      <CommandPalette open={open} onClose={() => setOpen(false)} />
+    </>
+  )
+}
 
 export function Providers({ children }) {
   return (
@@ -12,7 +23,9 @@ export function Providers({ children }) {
       <QueryProvider>
         <TooltipProvider>
         <AuthProvider>
+          <CommandPaletteWrapper>
           {children}
+          </CommandPaletteWrapper>
           <Toaster
             position="top-center"
             toastOptions={{
@@ -35,3 +48,4 @@ export function Providers({ children }) {
     </ThemeProvider>
   )
 }
+
