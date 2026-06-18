@@ -5,6 +5,7 @@ import { AuthProvider } from './AuthProvider'
 import { QueryProvider } from './QueryProvider'
 import { ThemeProvider } from './ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { CommandPaletteProvider } from '@/src/components/shared/CommandPalette'
 
 export function Providers({ children }) {
   return (
@@ -12,7 +13,9 @@ export function Providers({ children }) {
       <QueryProvider>
         <TooltipProvider>
         <AuthProvider>
+          <CommandPaletteProvider>
           {children}
+          </CommandPaletteProvider>
           <Toaster
             position="top-center"
             toastOptions={{
@@ -35,3 +38,4 @@ export function Providers({ children }) {
     </ThemeProvider>
   )
 }
+

@@ -21,6 +21,8 @@ import { Container } from '@/src/components/shared/Container'
 import { ErrorState } from '@/src/components/shared/ErrorState'
 import { InteractionBar } from '@/src/components/lessons/InteractionBar'
 import { CommentsSection } from '@/src/components/lessons/CommentsSection'
+import { ScrollProgressBar } from '@/src/components/shared/ScrollProgressBar'
+import { ReadingTime } from '@/src/components/shared/ReadingTime'
 import { getLessonById } from '@/src/services/lessonApi'
 import { usePremium } from '@/src/hooks/usePremium'
 import { cn } from '@/lib/utils'
@@ -112,6 +114,7 @@ export default function LessonDetailPage() {
 
   return (
     <article className="py-10 min-h-screen">
+      <ScrollProgressBar />
       <Container>
         {/* Back button */}
         <Button
@@ -178,12 +181,15 @@ export default function LessonDetailPage() {
               </Avatar>
               <div>
                 <p className="text-sm font-medium text-foreground">{author?.name || 'Anonymous'}</p>
-                {formattedDate && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {formattedDate}
-                  </p>
-                )}
+                <div className="flex items-center gap-2 mt-0.5">
+                  {formattedDate && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {formattedDate}
+                    </p>
+                  )}
+                  {content && <ReadingTime content={content} />}
+                </div>
               </div>
             </div>
 

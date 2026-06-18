@@ -1,4 +1,3 @@
-import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/src/providers'
@@ -21,14 +20,14 @@ const geistMono = Geist_Mono({
   display: 'swap',
 })
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Digital Life Lessons',
   description: 'Learn from real life experiences shared by people around the world.',
   generator: 'Digital Life Lessons',
   keywords: ['life lessons', 'wisdom', 'learning', 'personal growth', 'experiences'],
 }
 
-export const viewport: Viewport = {
+export const viewport = {
   colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f7fafa' },
@@ -37,11 +36,7 @@ export const viewport: Viewport = {
   userScalable: true,
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${playfair.variable} ${geistMono.variable} bg-background`}>
       <body className="font-sans antialiased min-h-screen">

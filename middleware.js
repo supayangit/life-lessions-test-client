@@ -18,7 +18,12 @@ export async function middleware(request) {
     request.cookies.get('better-auth.session_token')?.value ||
     request.cookies.get('__Secure-better-auth.session_token')?.value
 
-  const isAuthenticated = Boolean(sessionToken)
+  // Consider a token valid only if it's a non-empty, non-placeholder string
+  const isAuthenticated =
+    Boolean(sessionToken) &&
+    sessionToken !== 'undefined' &&
+    sessionToken !== 'null' &&
+    (typeof sessionToken === 'string' ? sessionToken.length > 10 : true)
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
   const isAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 

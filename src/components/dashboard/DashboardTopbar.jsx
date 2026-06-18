@@ -15,6 +15,10 @@ const SEGMENT_LABELS = {
   'my-lessons': 'My Lessons',
   'my-favorites': 'My Favorites',
   profile: 'Profile',
+  admin: 'Admin',
+  users: 'Manage Users',
+  lessons: 'Manage Lessons',
+  reports: 'Reports',
 }
 
 function Breadcrumbs() {

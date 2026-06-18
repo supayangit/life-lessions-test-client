@@ -12,21 +12,34 @@ import {
   Crown,
   LogOut,
   BookOpenCheck,
+  ShieldCheck,
+  Users,
+  Flag,
+  Star,
 } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/src/hooks/useAuth'
 import { useRole } from '@/src/hooks/useRole'
 import toast from 'react-hot-toast'
 
-const SIDEBAR_LINKS = [
+const USER_LINKS = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, exact: true },
   { href: '/dashboard/add-lesson', label: 'Add Lesson', icon: Plus },
   { href: '/dashboard/my-lessons', label: 'My Lessons', icon: BookOpen },
   { href: '/dashboard/my-favorites', label: 'My Favorites', icon: Bookmark },
   { href: '/dashboard/profile', label: 'Profile', icon: User },
+]
+
+const ADMIN_LINKS = [
+  { href: '/dashboard/admin', label: 'Admin Overview', icon: ShieldCheck, exact: true },
+  { href: '/dashboard/admin/users', label: 'Manage Users', icon: Users },
+  { href: '/dashboard/admin/lessons', label: 'Manage Lessons', icon: Star },
+  { href: '/dashboard/admin/reports', label: 'Reports', icon: Flag },
+  { href: '/dashboard/admin/profile', label: 'Admin Profile', icon: User },
 ]
 
 function SidebarLink({ href, label, icon: Icon, exact, onClick }) {
@@ -76,9 +89,21 @@ export function DashboardSidebar({ onClose }) {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-        {SIDEBAR_LINKS.map((link) => (
+        {USER_LINKS.map((link) => (
           <SidebarLink key={link.href} {...link} onClick={onClose} />
         ))}
+
+        {isAdmin && (
+          <>
+            <div className="pt-2 pb-1 px-1">
+              <Separator className="mb-2" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground px-2 mb-1">Admin</p>
+            </div>
+            {ADMIN_LINKS.map((link) => (
+              <SidebarLink key={link.href} {...link} onClick={onClose} />
+            ))}
+          </>
+        )}
       </nav>
 
       {/* User footer */}
