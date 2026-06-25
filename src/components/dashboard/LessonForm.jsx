@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2, Lock, Info } from 'lucide-react'
+import { Loader2, Lock, Info, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -59,6 +60,7 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(lessonSchema),
@@ -74,7 +76,26 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
     },
   })
 
-  const accessLevel = watch('accessLevel')
+  useEffect(() => {
+    if (defaultValues && (defaultValues.title || defaultValues.category)) {
+      reset({
+        title: defaultValues.title || '',
+        description: defaultValues.description || '',
+        category: defaultValues.category || '',
+        tone: defaultValues.tone || '',
+        image: defaultValues.image || '',
+        visibility: defaultValues.visibility || 'public',
+        accessLevel: defaultValues.accessLevel || 'free',
+      })
+    }
+  }, [defaultValues, reset])
+
+  const titleValue = watch('title')
+  const descriptionValue = watch('description')
+  const categoryValue = watch('category')
+  const toneValue = watch('tone')
+  const visibilityValue = watch('visibility')
+  const accessLevelValue = watch('accessLevel')
 
   const handleFormSubmit = (data) => {
     console.log('Submitted Lesson Data:', data)
@@ -84,22 +105,47 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
       {/* Title */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 relative">
         <Label htmlFor="title">Title <span className="text-destructive">*</span></Label>
-        <Input id="title" placeholder="e.g. The lesson that changed my view on failure" {...register('title')} />
+        <Input
+          id="title"
+          placeholder="e.g. The lesson that changed my view on failure"
+          className={titleValue ? 'pr-10' : ''}
+          {...register('title')}
+        />
+        {titleValue ? (
+          <button
+            type="button"
+            onClick={() => setValue('title', '', { shouldValidate: true })}
+            className="absolute right-2 top-[42px] inline-flex h-8 w-8 items-center justify-center rounded-full text-destructive hover:bg-muted/60"
+            aria-label="Clear title"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
         <FieldError message={errors.title?.message} />
       </div>
 
       {/* Description */}
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 relative">
         <Label htmlFor="description">Description <span className="text-destructive">*</span></Label>
         <Textarea
           id="description"
           placeholder="Share your experience and the lesson you learned..."
           rows={6}
-          className="resize-none"
+          className={`resize-none ${descriptionValue ? 'pr-10' : ''}`}
           {...register('description')}
         />
+        {descriptionValue ? (
+          <button
+            type="button"
+            onClick={() => setValue('description', '', { shouldValidate: true })}
+            className="absolute right-2 top-24 inline-flex h-8 w-8 items-center justify-center rounded-full text-destructive hover:bg-muted/60"
+            aria-label="Clear description"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
         <FieldError message={errors.description?.message} />
       </div>
 
@@ -108,7 +154,7 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
         <div className="space-y-1.5">
           <Label>Category <span className="text-destructive">*</span></Label>
           <Select
-            defaultValue={defaultValues?.category || ''}
+            value={categoryValue}
             onValueChange={(val) => setValue('category', val, { shouldValidate: true })}
           >
             <SelectTrigger>
@@ -126,7 +172,7 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
         <div className="space-y-1.5">
           <Label>Emotional Tone <span className="text-destructive">*</span></Label>
           <Select
-            defaultValue={defaultValues?.tone || ''}
+            value={toneValue}
             onValueChange={(val) => setValue('tone', val, { shouldValidate: true })}
           >
             <SelectTrigger>
@@ -154,7 +200,7 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
         <div className="space-y-1.5">
           <Label>Visibility</Label>
           <Select
-            defaultValue={defaultValues?.visibility || 'public'}
+            value={visibilityValue}
             onValueChange={(val) => setValue('visibility', val, { shouldValidate: true })}
           >
             <SelectTrigger>
@@ -186,7 +232,7 @@ export function LessonForm({ defaultValues, onSubmit, isPremiumUser, isSubmittin
             )}
           </div>
           <Select
-            defaultValue={defaultValues?.accessLevel || 'free'}
+            value={accessLevelValue}
             onValueChange={(val) => {
               if (val === 'premium' && !isPremiumUser) return
               setValue('accessLevel', val, { shouldValidate: true })

@@ -88,9 +88,9 @@ export async function toggleAccessLevel(id, axiosSecure) {
 /**
  * Fetch user's own lessons (authenticated).
  */
-export async function getMyLessons(axiosSecure) {
-  const { data } = await axiosSecure.get('/api/lessons/my-lessons')
-  if (Array.isArray(data)) return data
-  if (data?.lessons) return data.lessons
-  return []
+export async function getMyLessons(axiosSecure, page = 1, limit = 10) {
+  const { data } = await axiosSecure.get('/api/lessons/my-lessons', {
+    params: { page, limit },
+  })
+  return data
 }

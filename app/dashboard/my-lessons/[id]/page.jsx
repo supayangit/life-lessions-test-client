@@ -18,11 +18,17 @@ export default function UpdateLessonPage({ params }) {
   const queryClient = useQueryClient()
   const { isPremiumRole } = useRole()
 
-  const { data: lesson, isLoading } = useQuery({
+  const { data: lessonData, isLoading } = useQuery({
     queryKey: ['lesson', id],
     queryFn: () => getLessonById(id),
     enabled: Boolean(id),
+    onSuccess: (data) => {
+      console.log('[UpdateLessonPage] Lesson loaded:', data)
+    },
   })
+
+  // Handle both wrapped and unwrapped response structures
+  const lesson = lessonData?.lesson || lessonData
 
   const { mutate, isPending } = useMutation({
     mutationFn: (lessonData) => updateLesson(id, lessonData, axiosSecure),

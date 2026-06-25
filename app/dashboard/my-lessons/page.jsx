@@ -2,9 +2,9 @@
 
 
 import Link from 'next/link'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef, useState } from 'react'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
-import Swal from 'sweetalert2'
 import {
   Edit2,
   Trash2,
@@ -30,6 +30,13 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
 import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/src/services/lessonApi'
 
@@ -47,13 +54,86 @@ export default function MyLessonsPage() {
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
+  const sentinelRef = useRef(null)
+  const nextPageRequestRef = useRef(false)
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [lessonToDelete, setLessonToDelete] = useState(null)
+
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false)
+  const [lessonToToggleVisibility, setLessonToToggleVisibility] = useState(null)
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ['my-lessons'],
-    queryFn: () => getMyLessons(axiosSecure),
+    queryFn: ({ pageParam = 1 }) => getMyLessons(axiosSecure, pageParam, 10),
+    getNextPageParam: (lastPage) => {
+      if (lastPage?.pagination?.hasNextPage) {
+        return lastPage.pagination.page + 1
+      }
+      return undefined
+    },
     retry: false,
+    onSuccess: (response) => {
+      const loaded = response?.pages?.flatMap((page) => page.lessons ?? []) ?? []
+      console.log('[MyLessonsPage] Loaded lessons count:', loaded.length, 'pages:', response?.pages?.length)
+    },
+    onError: (err) => {
+      console.error('[MyLessonsPage] Failed to load my lessons', err)
+    },
   })
 
-  const lessons = Array.isArray(data) ? data : data?.lessons || []
+  const lessons = data?.pages?.flatMap((page) => page.lessons ?? []) ?? []
+
+  const updateMyLessonsPages = (old, callback) => {
+    if (!old) return old
+    if (Array.isArray(old)) return old.map(callback)
+    return {
+      ...old,
+      pages: old.pages?.map((page) => ({
+        ...page,
+        lessons: callback(page.lessons ?? []),
+      })) ?? [],
+    }
+  }
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || !hasNextPage) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (
+            entry.isIntersecting &&
+            hasNextPage &&
+            !isFetchingNextPage &&
+            !nextPageRequestRef.current
+          ) {
+            nextPageRequestRef.current = true
+            fetchNextPage().finally(() => {
+              nextPageRequestRef.current = false
+            })
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '200px',
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const deleteMutation = useMutation({
     mutationFn: (id) => deleteLesson(id, axiosSecure),
@@ -71,14 +151,18 @@ export default function MyLessonsPage() {
       await queryClient.cancelQueries({ queryKey: ['my-lessons'] })
       const prev = queryClient.getQueryData(['my-lessons'])
       queryClient.setQueryData(['my-lessons'], (old) =>
-        (old || []).map((l) =>
-          l._id === id ? { ...l, visibility: l.visibility === 'public' ? 'private' : 'public' } : l
+        updateMyLessonsPages(old, (lessons) =>
+          lessons.map((l) =>
+            l._id === id ? { ...l, visibility: l.visibility === 'public' ? 'private' : 'public' } : l
+          )
         )
       )
       return { prev }
     },
     onError: (_err, _id, ctx) => {
-      queryClient.setQueryData(['my-lessons'], ctx.prev)
+      if (ctx?.prev) {
+        queryClient.setQueryData(['my-lessons'], ctx.prev)
+      }
       toast.error('Failed to update visibility')
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['my-lessons'] }),
@@ -90,32 +174,48 @@ export default function MyLessonsPage() {
       await queryClient.cancelQueries({ queryKey: ['my-lessons'] })
       const prev = queryClient.getQueryData(['my-lessons'])
       queryClient.setQueryData(['my-lessons'], (old) =>
-        (old || []).map((l) =>
-          l._id === id ? { ...l, accessLevel: l.accessLevel === 'free' ? 'premium' : 'free' } : l
+        updateMyLessonsPages(old, (lessons) =>
+          lessons.map((l) =>
+            l._id === id ? { ...l, accessLevel: l.accessLevel === 'free' ? 'premium' : 'free' } : l
+          )
         )
       )
       return { prev }
     },
     onError: (_err, _id, ctx) => {
-      queryClient.setQueryData(['my-lessons'], ctx.prev)
+      if (ctx?.prev) {
+        queryClient.setQueryData(['my-lessons'], ctx.prev)
+      }
       toast.error('Failed to update access level')
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['my-lessons'] }),
   })
 
-  const handleDelete = async (id, title) => {
-    const result = await Swal.fire({
-      title: 'Delete lesson?',
-      text: `"${title}" will be permanently removed.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-      confirmButtonColor: 'oklch(0.577 0.245 27.325)',
-      background: 'var(--card)',
-      color: 'var(--card-foreground)',
-    })
-    if (result.isConfirmed) deleteMutation.mutate(id)
+  const handleDeleteClick = (id, title) => {
+    setLessonToDelete({ id, title })
+    setDeleteDialogOpen(true)
+  }
+
+  const handleConfirmDelete = () => {
+    if (lessonToDelete) {
+      deleteMutation.mutate(lessonToDelete.id)
+      setDeleteDialogOpen(false)
+      setLessonToDelete(null)
+    }
+  }
+
+  const handleVisibilityToggleClick = (id) => {
+    const lesson = lessons.find((l) => l._id === id)
+    setLessonToToggleVisibility(lesson)
+    setVisibilityDialogOpen(true)
+  }
+
+  const handleConfirmVisibilityToggle = () => {
+    if (lessonToToggleVisibility) {
+      visibilityMutation.mutate(lessonToToggleVisibility._id)
+      setVisibilityDialogOpen(false)
+      setLessonToToggleVisibility(null)
+    }
   }
 
   return (
@@ -186,7 +286,7 @@ export default function MyLessonsPage() {
                           variant="ghost"
                           size="sm"
                           className={`h-7 gap-1.5 text-xs px-2 ${lesson.visibility === 'public' ? 'text-primary' : 'text-muted-foreground'}`}
-                          onClick={() => visibilityMutation.mutate(lesson._id)}
+                          onClick={() => handleVisibilityToggleClick(lesson._id)}
                           disabled={visibilityMutation.isPending}
                         >
                           {lesson.visibility === 'public'
@@ -227,7 +327,7 @@ export default function MyLessonsPage() {
                         <Heart className="h-3.5 w-3.5" /> {lesson.likesCount ?? 0}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Bookmark className="h-3.5 w-3.5" /> {lesson.savesCount ?? 0}
+                        <Bookmark className="h-3.5 w-3.5" /> {lesson.favoritesCount ?? 0}
                       </span>
                       <span className="flex items-center gap-1">
                         <MessageSquare className="h-3.5 w-3.5" /> {lesson.commentsCount ?? 0}
@@ -255,7 +355,7 @@ export default function MyLessonsPage() {
                             variant="ghost"
                             size="icon"
                             className="h-7 w-7 text-destructive hover:text-destructive"
-                            onClick={() => handleDelete(lesson._id, lesson.title)}
+                            onClick={() => handleDeleteClick(lesson._id, lesson.title)}
                             disabled={deleteMutation.isPending}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -272,6 +372,75 @@ export default function MyLessonsPage() {
           </TableBody>
         </Table>
       </div>
+
+      <div ref={sentinelRef} className="h-1" />
+
+      <div className="mt-4 flex flex-col items-center gap-2">
+        {isFetchingNextPage && (
+          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border border-t-primary" aria-hidden="true" />
+            Loading more lessons…
+          </span>
+        )}
+        {!isFetchingNextPage && !hasNextPage && lessons.length > 0 && (
+          <span className="text-sm text-muted-foreground">End of lessons.</span>
+        )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={deleteDialogOpen} onOpenChange={(value) => {
+        setDeleteDialogOpen(value)
+        if (!value) setLessonToDelete(null)
+      }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete lesson?</DialogTitle>
+            <DialogDescription>
+              "{lessonToDelete?.title}" will be permanently removed. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="h-9"
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Visibility Toggle Confirmation Modal */}
+      <Dialog open={visibilityDialogOpen} onOpenChange={(value) => {
+        setVisibilityDialogOpen(value)
+        if (!value) setLessonToToggleVisibility(null)
+      }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Change visibility?</DialogTitle>
+            <DialogDescription>
+              Change "{lessonToToggleVisibility?.title}" from {lessonToToggleVisibility?.visibility === 'public' ? 'public' : 'private'} to {lessonToToggleVisibility?.visibility === 'public' ? 'private' : 'public'}?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-6 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setVisibilityDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleConfirmVisibilityToggle}
+              disabled={visibilityMutation.isPending}
+              className="h-9"
+            >
+              {visibilityMutation.isPending ? 'Changing...' : 'Change'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
