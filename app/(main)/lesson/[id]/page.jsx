@@ -105,6 +105,7 @@ export default function LessonDetailPage() {
     likesCount = 0,
     favoritesCount = 0,
     isFavorited = false,
+    isLiked = false,
     createdAt,
     tags = [],
   } = lesson
@@ -215,6 +216,7 @@ export default function LessonDetailPage() {
               lessonUrl={typeof window !== 'undefined' ? window.location.href : ''}
               initialLikes={likesCount}
               initialSaves={favoritesCount}
+              isLiked={isLiked}
               isFavorited={isFavorited}
             />
           </div>

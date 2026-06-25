@@ -19,7 +19,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/src/hooks/useAuth'
-import { toggleLike, submitReport, REPORT_REASONS } from '@/src/services/reportsApi'
+import { addLike, removeLike } from '@/src/services/likesApi'
+import { submitReport, REPORT_REASONS } from '@/src/services/reportsApi'
 import { addFavorite, removeFavorite } from '@/src/services/favoritesApi'
 import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
 
@@ -55,29 +56,54 @@ export function InteractionBar({
   useEffect(() => {
     console.log('InteractionBar mounted with:', {
       lessonId,
+      isLiked,
       isFavorited,
       initialLikes,
       initialSaves,
       isAuthenticated,
     })
+    setLiked(isLiked)
     setFavorited(isFavorited)
-  }, [isFavorited, isAuthenticated, initialLikes, initialSaves, lessonId])
+  }, [isLiked, isFavorited, isAuthenticated, initialLikes, initialSaves, lessonId])
 
   const shareUrl = lessonUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
   /* ── Like (optimistic) ── */
   const likeMutation = useMutation({
-    mutationFn: () => toggleLike(lessonId, axiosSecure),
-    onMutate: () => {
-      setLiked((prev) => !prev)
-      setLikesCount((prev) => liked ? prev - 1 : prev + 1)
+    mutationFn: ({ nextLiked }) =>
+      nextLiked ? addLike(lessonId, axiosSecure) : removeLike(lessonId, axiosSecure),
+    onMutate: ({ nextLiked }) => {
+      console.log('Like toggle requested:', {
+        lessonId,
+        currentLiked: liked,
+        nextLiked,
+      })
+      setLiked(nextLiked)
+      setLikesCount((prev) => (nextLiked ? prev + 1 : prev - 1))
+      return { previousLiked: liked, previousLikesCount: likesCount, nextLiked }
     },
-    onError: () => {
-      setLiked((prev) => !prev)
-      setLikesCount((prev) => liked ? prev + 1 : prev - 1)
+    onError: (_err, _variables, ctx) => {
+      console.log('Like toggle failed, reverting:', {
+        lessonId,
+        error: _err,
+        ctx,
+      })
+      if (ctx) {
+        setLiked(ctx.previousLiked)
+        setLikesCount(ctx.previousLikesCount)
+      }
       toast.error('Failed to update like')
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const { nextLiked } = variables || {}
+      console.log('Like toggle succeeded:', {
+        lessonId,
+        nextLiked,
+        response: data,
+      })
+      const likesCountFromApi = data?.lesson?.likesCount ?? data?.likesCount
+      if (typeof nextLiked === 'boolean') setLiked(nextLiked)
+      if (typeof likesCountFromApi === 'number') setLikesCount(likesCountFromApi)
       queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] })
     },
   })
@@ -139,8 +165,19 @@ export function InteractionBar({
   })
 
   const handleLike = () => {
-    if (!isAuthenticated) { toast.error('Please log in to like lessons'); return }
-    likeMutation.mutate()
+    if (!isAuthenticated) {
+      toast.error('Please log in to like lessons')
+      console.log('Like attempt blocked: unauthenticated user', { lessonId })
+      return
+    }
+
+    const nextLiked = !liked
+    console.log('Like button clicked', {
+      lessonId,
+      currentLiked: liked,
+      nextLiked,
+    })
+    likeMutation.mutate({ nextLiked })
   }
 
   const handleFavorite = () => {
