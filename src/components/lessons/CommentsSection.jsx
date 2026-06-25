@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/src/hooks/useAuth'
 import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getComments, postComment, deleteComment } from '@/src/services/commentsApi'
+import { getComments, addComment, deleteComment } from '@/src/services/commentsApi'
 
 const MOCK_COMMENTS = [
   {
@@ -84,7 +84,7 @@ export function CommentsSection({ lessonId }) {
   })
 
   const postMutation = useMutation({
-    mutationFn: (content) => postComment(lessonId, content, axiosSecure),
+    mutationFn: (content) => addComment(lessonId, content, axiosSecure),
     onMutate: async (content) => {
       await queryClient.cancelQueries({ queryKey: ['comments', lessonId] })
       const prev = queryClient.getQueryData(['comments', lessonId])
@@ -138,7 +138,11 @@ export function CommentsSection({ lessonId }) {
     postMutation.mutate(draft.trim())
   }
 
-  const displayComments = comments || MOCK_COMMENTS
+  const displayComments = Array.isArray(comments)
+    ? comments
+    : Array.isArray(comments?.comments)
+    ? comments.comments
+    : MOCK_COMMENTS
 
   return (
     <div className="space-y-5">

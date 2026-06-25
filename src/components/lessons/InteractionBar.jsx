@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
@@ -10,7 +10,7 @@ import {
   TwitterShareButton,
 } from 'react-share'
 import { Heart, Bookmark, Share2, Flag } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,6 +52,17 @@ export function InteractionBar({
   const [favorited, setFavorited] = useState(isFavorited)
   const [savesCount, setSavesCount] = useState(initialSaves)
 
+  useEffect(() => {
+    console.log('InteractionBar mounted with:', {
+      lessonId,
+      isFavorited,
+      initialLikes,
+      initialSaves,
+      isAuthenticated,
+    })
+    setFavorited(isFavorited)
+  }, [isFavorited, isAuthenticated, initialLikes, initialSaves, lessonId])
+
   const shareUrl = lessonUrl || (typeof window !== 'undefined' ? window.location.href : '')
 
   /* ── Like (optimistic) ── */
@@ -73,22 +84,50 @@ export function InteractionBar({
 
   /* ── Favorite (optimistic) ── */
   const favMutation = useMutation({
-    mutationFn: () =>
-      favorited
-        ? removeFavorite(lessonId, axiosSecure)
-        : addFavorite(lessonId, axiosSecure),
-    onMutate: () => {
-      setFavorited((prev) => !prev)
-      setSavesCount((prev) => favorited ? prev - 1 : prev + 1)
+    mutationFn: ({ nextFavorited }) =>
+      nextFavorited
+        ? addFavorite(lessonId, axiosSecure)
+        : removeFavorite(lessonId, axiosSecure),
+    onMutate: ({ nextFavorited }) => {
+      console.log('Favorite toggle requested:', {
+        lessonId,
+        currentFavorited: favorited,
+        nextFavorited,
+      })
+      setFavorited(nextFavorited)
+      setSavesCount((prev) => (nextFavorited ? prev + 1 : prev - 1))
+      return {
+        previousFavorited: favorited,
+        previousSavesCount: savesCount,
+        nextFavorited,
+      }
     },
-    onError: () => {
-      setFavorited((prev) => !prev)
-      setSavesCount((prev) => favorited ? prev + 1 : prev - 1)
+    onError: (_err, _variables, ctx) => {
+      console.log('Favorite toggle failed, reverting:', {
+        lessonId,
+        error: _err,
+        ctx,
+      })
+      if (ctx) {
+        setFavorited(ctx.previousFavorited)
+        setSavesCount(ctx.previousSavesCount)
+      }
       toast.error('Failed to update favorite')
     },
-    onSuccess: () => {
-      toast.success(favorited ? 'Removed from favorites' : 'Saved to favorites')
+    onSuccess: (data, variables) => {
+      const { nextFavorited } = variables || {}
+      console.log('Favorite toggle succeeded:', {
+        lessonId,
+        nextFavorited,
+        response: data,
+      })
+      // Ensure UI state matches server response
+      const favCount = data?.lesson?.favoritesCount ?? data?.favoritesCount
+      if (typeof nextFavorited === 'boolean') setFavorited(nextFavorited)
+      if (typeof favCount === 'number') setSavesCount(favCount)
+      toast.success(nextFavorited ? 'Saved to favorites' : 'Removed from favorites')
       queryClient.invalidateQueries({ queryKey: ['my-favorites'] })
+      queryClient.invalidateQueries({ queryKey: ['lesson', lessonId] })
     },
   })
 
@@ -106,7 +145,8 @@ export function InteractionBar({
 
   const handleFavorite = () => {
     if (!isAuthenticated) { toast.error('Please log in to save lessons'); return }
-    favMutation.mutate()
+    const nextFavorited = !favorited
+    favMutation.mutate({ nextFavorited })
   }
 
   const handleReport = async () => {
@@ -165,12 +205,20 @@ export function InteractionBar({
 
       {/* Social Share */}
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-sm px-3 text-muted-foreground hover:text-foreground">
-            <Share2 className="h-4 w-4" />
-            Share
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <button
+              type="button"
+              className={cn(
+                buttonVariants({ variant: 'ghost', size: 'sm' }),
+                'h-8 gap-1.5 text-sm px-3 text-muted-foreground hover:text-foreground'
+              )}
+            >
+              <Share2 className="h-4 w-4" />
+              Share
+            </button>
+          }
+        />
         <DropdownMenuContent align="start" className="w-44">
           <DropdownMenuItem asChild>
             <FacebookShareButton url={shareUrl} className="w-full">

@@ -1,5 +1,7 @@
 'use client'
 
+
+import { useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -69,6 +71,13 @@ export default function LessonDetailPage() {
 
   const lesson = data?.lesson || data
 
+  useEffect(() => {
+    if (lesson) {
+      console.log('LessonDetailPage loaded lesson data:', lesson)
+      console.log('LessonDetailPage raw query data:', data)
+    }
+  }, [lesson, data])
+
   if (isLoading) return <LessonDetailSkeleton />
 
   if (isError) {
@@ -90,13 +99,20 @@ export default function LessonDetailPage() {
     category,
     tone,
     image,
-    author,
+    creatorName,
+    creatorPhoto,
     isPremium: lessonIsPremium,
     likesCount = 0,
-    savesCount = 0,
+    favoritesCount = 0,
+    isFavorited = false,
     createdAt,
     tags = [],
   } = lesson
+
+  const author = {
+    name: creatorName,
+    image: creatorPhoto,
+  }
 
   const isLocked = lessonIsPremium && !isPremium
 
@@ -198,7 +214,8 @@ export default function LessonDetailPage() {
               lessonId={id}
               lessonUrl={typeof window !== 'undefined' ? window.location.href : ''}
               initialLikes={likesCount}
-              initialSaves={savesCount}
+              initialSaves={favoritesCount}
+              isFavorited={isFavorited}
             />
           </div>
 

@@ -5,12 +5,7 @@ import { NextResponse } from 'next/server'
  */
 const PROTECTED_ROUTES = ['/add-lesson', '/my-lessons', '/dashboard']
 
-/**
- * Routes only accessible to unauthenticated user.
- */
-const AUTH_ROUTES = ['/auth/login', '/auth/register']
-
-export async function middleware(request) {
+export async function proxy(request) {
   const { pathname } = request.nextUrl
 
   // Read the session token from cookies set by better-auth
@@ -25,7 +20,6 @@ export async function middleware(request) {
     sessionToken !== 'null' &&
     (typeof sessionToken === 'string' ? sessionToken.length > 10 : true)
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
-  const isAuthPage = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 
   // Redirect unauthenticated user away from protected routes
   if (isProtected && !isAuthenticated) {
@@ -43,6 +37,8 @@ export async function middleware(request) {
 
   return NextResponse.next()
 }
+
+export { proxy as middleware }
 
 export const config = {
   matcher: [

@@ -16,3 +16,4 @@ export async function removeFavorite(lessonId, axiosSecure) {
   const { data } = await axiosSecure.delete(`/api/favorites/${lessonId}`)
   return data
 }
+

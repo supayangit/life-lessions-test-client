@@ -1,0 +1,20 @@
+node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md:export function proxy(request: NextRequest) {
+node_modules/next/dist/docs/01-app/01-getting-started/16-proxy.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request: Request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request: Request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request: Request) {
+node_modules/next/dist/docs/01-app/02-guides/backend-for-frontend.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md:export function proxy(request: NextRequest) {
+node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md:export function proxy(request: NextRequest) {
+node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/internationalization.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/redirecting.md:export function proxy(request: NextRequest) {
+node_modules/next/dist/docs/01-app/02-guides/redirecting.md:export function proxy(request) {
+node_modules/next/dist/docs/01-app/02-guides/upgrading/codemods.md:export function proxy() {
+node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md:export function proxy(request: Request) {}
+node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md:export function proxy(request) {}
+node_modules/next/dist/docs/01-app/03-api-reference/02-components/link.md:export function proxy(request: Request) {
+node_modules/next/dist/docs/01-app/03-api-reference/02-components/link.md:export function proxy(request) {
