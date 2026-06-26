@@ -53,8 +53,7 @@ function Breadcrumbs() {
 }
 
 export function DashboardTopbar({ onMenuClick }) {
-  const { isPremiumRole, isAdmin } = useRole()
-  const { user } = useAuth()
+  const { isPremium, isAdmin } = useRole()
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border bg-background/90 backdrop-blur-sm px-4">
@@ -71,7 +70,7 @@ export function DashboardTopbar({ onMenuClick }) {
       <Breadcrumbs />
 
       <div className="ml-auto flex items-center gap-2">
-        {isPremiumRole && (
+        {isPremium && (
           <Badge className="hidden sm:flex items-center gap-1 bg-accent text-accent-foreground border-0 text-xs h-6">
             <Crown className="h-3 w-3" />
             Premium
@@ -82,7 +81,7 @@ export function DashboardTopbar({ onMenuClick }) {
             Admin
           </Badge>
         )}
-        {!isPremiumRole && !isAdmin && (
+        {!isPremium && !isAdmin && (
           <Link href="/pricing">
             <Badge variant="outline" className="hidden sm:flex text-xs h-6 cursor-pointer hover:bg-muted transition-colors">
               Upgrade

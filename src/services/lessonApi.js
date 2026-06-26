@@ -14,8 +14,15 @@ export async function getLessons(params = {}) {
  * Fetch a single lesson by ID.
  */
 export async function getLessonById(id) {
-  const { data } = await axiosPublic.get(`/api/lessons/${id}`)
-  return data
+  try {
+    const { data } = await axiosPublic.get(`/api/lessons/${id}`)
+    return data
+  } catch (error) {
+    if (error.response?.data?.locked) {
+      return error.response.data
+    }
+    throw error
+  }
 }
 
 /**
@@ -23,6 +30,7 @@ export async function getLessonById(id) {
  */
 export async function getFeaturedLessons() {
   const { data } = await axiosPublic.get('/api/lessons/featured')
+  console.log('[API] Featured lessons', data)
   return data
 }
 
@@ -31,6 +39,7 @@ export async function getFeaturedLessons() {
  */
 export async function getTopContributors() {
   const { data } = await axiosPublic.get('/api/lessons/top-contributors')
+  console.log('[API] Top contributors', data)
   return data
 }
 
@@ -39,6 +48,7 @@ export async function getTopContributors() {
  */
 export async function getMostSavedLessons() {
   const { data } = await axiosPublic.get('/api/lessons/most-saved')
+  console.log('[API] Most saved lessons', data)
   return data
 }
 

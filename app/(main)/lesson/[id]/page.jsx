@@ -13,6 +13,8 @@ import {
   Calendar,
   Tag,
   BookOpen,
+  Globe,
+  Eye,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +29,7 @@ import { ScrollProgressBar } from '@/components/shared/ScrollProgressBar'
 import { ReadingTime } from '@/components/shared/ReadingTime'
 import { getLessonById } from '@/services/lessonApi'
 import { usePremium } from '@/hooks/usePremium'
+import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
 
 const TONE_COLORS = {
@@ -62,6 +65,7 @@ export default function LessonDetailPage() {
   const { id } = useParams()
   const router = useRouter()
   const { isPremium } = usePremium()
+  const { isAuthenticated } = useAuth()
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['lesson', id],
@@ -69,7 +73,8 @@ export default function LessonDetailPage() {
     enabled: Boolean(id),
   })
 
-  const lesson = data?.lesson || data
+  const lessonResponse = data || {}
+  const lesson = lessonResponse.lesson || data
 
   useEffect(() => {
     if (lesson) {
@@ -101,21 +106,24 @@ export default function LessonDetailPage() {
     image,
     creatorName,
     creatorPhoto,
-    isPremium: lessonIsPremium,
+    creatorId,
+    accessLevel,
+    visibility,
     likesCount = 0,
     favoritesCount = 0,
+    viewsCount = 0,
     isFavorited = false,
     isLiked = false,
     createdAt,
     tags = [],
   } = lesson
+  const lessonIsPremium = accessLevel === 'premium'
+  const isLocked = lessonResponse.locked || (lessonIsPremium && !isPremium)
 
   const author = {
     name: creatorName,
     image: creatorPhoto,
   }
-
-  const isLocked = lessonIsPremium && !isPremium
 
   const authorInitials = author?.name
     ? author.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -148,8 +156,10 @@ export default function LessonDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-4xl"
+          className="grid grid-cols-1 lg:grid-cols-4 gap-8"
         >
+          {/* Left column - Content */}
+          <div className="lg:col-span-3">
           {/* Badges row */}
           <div className="flex flex-wrap gap-2 mb-4">
             {category && (
@@ -171,6 +181,27 @@ export default function LessonDetailPage() {
             {lessonIsPremium && (
               <Badge className="text-xs bg-accent text-accent-foreground border-0">
                 Premium
+              </Badge>
+            )}
+            {visibility && (
+              <Badge variant="outline" className="text-xs">
+                {visibility === 'public' ? (
+                  <>
+                    <Globe className="h-3 w-3 mr-1" />
+                    Public
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-3 w-3 mr-1" />
+                    Private
+                  </>
+                )}
+              </Badge>
+            )}
+            {viewsCount > 0 && (
+              <Badge variant="outline" className="text-xs">
+                <Eye className="h-3 w-3 mr-1" />
+                {viewsCount} views
               </Badge>
             )}
           </div>
@@ -254,10 +285,10 @@ export default function LessonDetailPage() {
                 <Lock className="h-8 w-8 text-primary" />
               </div>
               <h2 className="font-serif text-xl font-bold text-foreground mb-2">
-                This is a Premium Lesson
+                This is Premium Content
               </h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6 leading-relaxed">
-                Unlock access to this lesson and hundreds more by upgrading to a Premium membership.
+                Upgrade to Premium to unlock this lesson and access hundreds more premium stories.
               </p>
               <Button asChild size="lg" className="gap-2">
                 <Link href="/pricing">
@@ -295,10 +326,49 @@ export default function LessonDetailPage() {
 
           {/* Comments */}
           {!isLocked && (
-            <div className="mt-12">
+            <div className={isAuthenticated ? '' : 'blur-sm pointer-events-none opacity-60'}>
               <CommentsSection lessonId={id} />
             </div>
           )}
+          </div>
+
+          {/* Right column - Creator Card */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-20 space-y-6">
+              {/* Creator Card */}
+              <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+                <h3 className="font-semibold text-foreground">About the Author</h3>
+                <Link href={`/user/profile?userId=${creatorId}`} className="block">
+                  <div className="space-y-4">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage src={author?.image} alt={author?.name || 'Author'} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                        {authorInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-foreground hover:text-primary transition-colors">
+                        {author?.name || 'Anonymous'}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">Lesson Creator</p>
+                    </div>
+                  </div>
+                </Link>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Total Lessons</span>
+                    <span className="font-semibold text-foreground">{lesson.lessonsCount || lesson.lessonCount || 0}</span>
+                  </div>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href={`/user/profile?userId=${creatorId}`}>
+                      View All Lessons
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </Container>
     </article>

@@ -1,10 +1,29 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, Bookmark, Lock, MessageSquare } from 'lucide-react'
+import { Heart, Bookmark, Lock, MessageSquare, ArrowRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+
+function formatDate(dateString) {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now - date
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  const diffWeeks = Math.floor(diffDays / 7)
+  const diffMonths = Math.floor(diffDays / 30)
+
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  if (diffDays < 7) return `${diffDays}d ago`
+  if (diffWeeks < 4) return `${diffWeeks}w ago`
+  if (diffMonths < 12) return `${diffMonths}mo ago`
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
 
 const TONE_COLORS = {
   reflective: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
@@ -28,11 +47,12 @@ export function LessonCard({ lesson, isPremiumUser = false }) {
     author,
     creatorName,
     creatorPhoto,
-    isPremium,
+    accessLevel,
     likesCount = 0,
     favoritesCount = 0,
     savesCount = 0,
     commentsCount = 0,
+    createdAt,
   } = lesson
 
   const lessonAuthor = {
@@ -41,7 +61,9 @@ export function LessonCard({ lesson, isPremiumUser = false }) {
   }
 
   const displayFavorites = typeof favoritesCount === 'number' ? favoritesCount : savesCount
+  const isPremium = accessLevel === 'premium'
   const isLocked = isPremium && !isPremiumUser
+  const formattedDate = createdAt ? formatDate(createdAt) : null
 
   const authorInitials = lessonAuthor?.name
     ? lessonAuthor.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -63,7 +85,7 @@ export function LessonCard({ lesson, isPremiumUser = false }) {
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-primary/20 to-accent/20" />
+          <div className="h-full w-full bg-linear-to-br from-primary/20 to-accent/20" />
         )}
 
         {/* Premium lock overlay */}
@@ -103,11 +125,9 @@ export function LessonCard({ lesson, isPremiumUser = false }) {
           </span>
         )}
 
-        <Link href={`/lesson/${_id}`}>
-          <h3 className="font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors text-sm sm:text-base leading-snug">
-            {title}
-          </h3>
-        </Link>
+        <h3 className="font-semibold text-foreground line-clamp-2 text-sm sm:text-base leading-snug">
+          {title}
+        </h3>
 
         {!isLocked && description && (
           <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
@@ -128,18 +148,31 @@ export function LessonCard({ lesson, isPremiumUser = false }) {
         )}
 
         {/* Footer */}
-        <div className="mt-3 flex items-center justify-between pt-3 border-t border-border">
-          {/* Author */}
-          <div className="flex items-center gap-1.5 min-w-0">
-            <Avatar className="h-6 w-6 flex-shrink-0">
-              <AvatarImage src={lessonAuthor?.image} alt={lessonAuthor?.name || 'Author'} />
-              <AvatarFallback className="text-[10px] bg-primary/10 text-primary">{authorInitials}</AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-muted-foreground truncate">{lessonAuthor?.name || 'Anonymous'}</span>
+        <div className="mt-3 space-y-3 pt-3 border-t border-border">
+          {/* Author and Date */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+            <Avatar className="h-6 w-6 shrink-0">
+                <AvatarImage src={lessonAuthor?.image} alt={lessonAuthor?.name || 'Author'} />
+                <AvatarFallback className="text-[10px] bg-primary/10 text-primary">{authorInitials}</AvatarFallback>
+              </Avatar>
+              <span className="text-xs text-muted-foreground truncate">{lessonAuthor?.name || 'Anonymous'}</span>
+            </div>
+            {formattedDate && (
+              <span className="text-xs text-muted-foreground shrink-0">{formattedDate}</span>
+            )}
           </div>
 
+          {/* See Details Button */}
+          <Button size="sm" asChild variant="outline" className="w-full text-xs h-8 gap-1">
+            <Link href={`/lesson/${_id}`}>
+              See Details
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </Button>
+
           {/* Stats */}
-          <div className="flex items-center gap-3 text-xs text-muted-foreground flex-shrink-0">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground justify-center">
             <span className="flex items-center gap-1">
               <Heart className="h-3.5 w-3.5" aria-hidden="true" />
               {likesCount}

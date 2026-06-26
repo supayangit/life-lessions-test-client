@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 import { Heart, Users, Lightbulb, Shield } from 'lucide-react'
 import { Container } from '@/components/shared/Container'
 import { SectionHeading } from '@/components/shared/SectionHeading'
@@ -59,6 +60,11 @@ const cardVariants = {
 }
 
 export function WhyLearnFromLife() {
+  useEffect(() => {
+    console.log('[WhyLearnFromLife] benefit cards', CARDS)
+    console.log('[WhyLearnFromLife] stats', STATS)
+  }, [])
+
   return (
     <section className="py-16 bg-muted/40">
       <Container>

@@ -35,3 +35,13 @@ export async function getUserById(id) {
   const { data } = await axiosPublic.get(`/api/users/${id}`)
   return data
 }
+
+/**
+ * Fetch a public user's lessons by ID.
+ */
+export async function getUserPublicLessons(userId, page = 1, limit = 6) {
+  const { data } = await axiosPublic.get(`/api/users/${userId}/public-lessons`, {
+    params: { page, limit },
+  })
+  return data
+}

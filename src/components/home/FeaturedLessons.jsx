@@ -29,6 +29,7 @@ export function FeaturedLessons() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['lessons', 'featured'],
     queryFn: getFeaturedLessons,
+    onSuccess: (data) => console.log('[FeaturedLessons] rendered data', data),
   })
 
   const lessons = data?.lessons || data || []

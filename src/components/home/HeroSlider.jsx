@@ -3,6 +3,7 @@
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules'
 import { motion } from 'framer-motion'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -52,6 +53,10 @@ const textVariants = {
 }
 
 export function HeroSlider() {
+  useEffect(() => {
+    console.log('[HeroSlider] slides', SLIDES)
+  }, [])
+
   return (
     <section aria-label="Hero" className="relative">
       <Swiper

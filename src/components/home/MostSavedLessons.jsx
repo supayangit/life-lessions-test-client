@@ -29,6 +29,7 @@ export function MostSavedLessons() {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['lessons', 'most-saved'],
     queryFn: getMostSavedLessons,
+    onSuccess: (data) => console.log('[MostSavedLessons] rendered data', data),
   })
 
   const lessons = data?.lessons || data || []
