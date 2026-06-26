@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { LessonForm } from '@/src/components/dashboard/LessonForm'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { useRole } from '@/src/hooks/useRole'
-import { createLesson } from '@/src/services/lessonApi'
+import { LessonForm } from '@/components/dashboard/LessonForm'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { useRole } from '@/hooks/useRole'
+import { createLesson } from '@/services/lessonApi'
 
 
 export default function AddLessonPage() {

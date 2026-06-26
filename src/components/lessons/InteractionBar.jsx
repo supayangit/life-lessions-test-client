@@ -18,11 +18,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/src/hooks/useAuth'
-import { addLike, removeLike } from '@/src/services/likesApi'
-import { submitReport, REPORT_REASONS } from '@/src/services/reportsApi'
-import { addFavorite, removeFavorite } from '@/src/services/favoritesApi'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
+import { useAuth } from '@/hooks/useAuth'
+import { addLike, removeLike } from '@/services/likesApi'
+import { submitReport, REPORT_REASONS } from '@/services/reportsApi'
+import { addFavorite, removeFavorite } from '@/services/favoritesApi'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 
 /**
  * InteractionBar — Like, Favorite, Share (Facebook/LinkedIn/X), Report

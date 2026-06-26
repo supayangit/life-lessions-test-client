@@ -23,10 +23,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { useRole } from '@/src/hooks/useRole'
-import { usePremium } from '@/src/hooks/usePremium'
-import { createCheckoutSession } from '@/src/services/paymentsApi'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
+import { createCheckoutSession } from '@/services/paymentsApi'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -61,8 +61,10 @@ function CheckIcon({ value }) {
 
 export default function PricingPage() {
   const axiosSecure = useAxiosSecure()
-  const { isFree, isPending: rolePending } = useRole()
+  const { isPending: rolePending } = useRole()
   const { isPremium } = usePremium()
+  const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  const hasStripeKey = Boolean(stripePublishableKey)
 
   const { mutate: checkout, isPending } = useMutation({
     mutationFn: () => createCheckoutSession(axiosSecure),
@@ -192,14 +194,19 @@ export default function PricingPage() {
                   className="w-full"
                   size="lg"
                   onClick={() => checkout()}
-                  disabled={isPending || rolePending}
+                  disabled={isPending || rolePending || !hasStripeKey}
                 >
                   {isPending ? (
                     <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Redirecting...</>
                   ) : (
-                    <><Crown className="h-4 w-4 mr-2" /> Upgrade to Premium</>
+                    <>{hasStripeKey ? <><Crown className="h-4 w-4 mr-2" /> Upgrade to Premium</> : 'Stripe not configured'}</>
                   )}
                 </Button>
+              )}
+              {!hasStripeKey && (
+                <p className="mt-3 text-xs text-destructive">
+                  Stripe publishable key is missing. Set `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in your environment.
+                </p>
               )}
             </motion.div>
           </div>
@@ -289,17 +296,23 @@ export default function PricingPage() {
               size="lg"
               className="mt-6"
               onClick={() => checkout()}
-              disabled={isPending || rolePending}
+              disabled={isPending || rolePending || !hasStripeKey}
             >
               {isPending ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Processing...</>
               ) : (
-                'Get Lifetime Premium — ৳1,500'
+                hasStripeKey ? 'Get Lifetime Premium — ৳1,500' : 'Stripe not configured'
               )}
             </Button>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Secure checkout via Stripe. One-time payment.
-            </p>
+            {!hasStripeKey ? (
+              <p className="mt-3 text-xs text-destructive">
+                Stripe publishable key is missing. Set `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in your environment.
+              </p>
+            ) : (
+              <p className="mt-3 text-xs text-muted-foreground">
+                Secure checkout via Stripe. One-time payment.
+              </p>
+            )}
           </div>
         </section>
       )}

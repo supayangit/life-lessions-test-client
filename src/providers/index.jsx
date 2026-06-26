@@ -5,7 +5,7 @@ import { AuthProvider } from './AuthProvider'
 import { QueryProvider } from './QueryProvider'
 import { ThemeProvider } from './ThemeProvider'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { CommandPaletteProvider } from '@/src/components/shared/CommandPalette'
+import { CommandPaletteProvider } from '@/components/shared/CommandPalette'
 
 export function Providers({ children }) {
   return (

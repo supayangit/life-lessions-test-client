@@ -1,8 +1,8 @@
-import { HeroSlider } from '@/src/components/home/HeroSlider'
-import { FeaturedLessons } from '@/src/components/home/FeaturedLessons'
-import { WhyLearnFromLife } from '@/src/components/home/WhyLearnFromLife'
-import { TopContributors } from '@/src/components/home/TopContributors'
-import { MostSavedLessons } from '@/src/components/home/MostSavedLessons'
+import { HeroSlider } from '@/components/home/HeroSlider'
+import { FeaturedLessons } from '@/components/home/FeaturedLessons'
+import { WhyLearnFromLife } from '@/components/home/WhyLearnFromLife'
+import { TopContributors } from '@/components/home/TopContributors'
+import { MostSavedLessons } from '@/components/home/MostSavedLessons'
 
 export default function HomePage() {
   return (

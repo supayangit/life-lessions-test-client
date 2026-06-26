@@ -38,8 +38,8 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/src/services/lessonApi'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/services/lessonApi'
 
 function LessonRowSkeleton() {
   return (

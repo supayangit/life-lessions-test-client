@@ -5,11 +5,11 @@ import { motion } from 'framer-motion'
 import { BookOpen } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Container } from '@/src/components/shared/Container'
-import { SectionHeading } from '@/src/components/shared/SectionHeading'
-import { ContributorSkeleton } from '@/src/components/shared/SkeletonLoader'
-import { ErrorState } from '@/src/components/shared/ErrorState'
-import { getTopContributors } from '@/src/services/lessonApi'
+import { Container } from '@/components/shared/Container'
+import { SectionHeading } from '@/components/shared/SectionHeading'
+import { ContributorSkeleton } from '@/components/shared/SkeletonLoader'
+import { ErrorState } from '@/components/shared/ErrorState'
+import { getTopContributors } from '@/services/lessonApi'
 
 const containerVariants = {
   hidden: {},

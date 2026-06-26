@@ -24,11 +24,11 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { LessonCard } from '@/src/components/lessons/LessonCard'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useRole } from '@/src/hooks/useRole'
-import { getMyProfile, getMyLessons, updateMyProfile } from '@/src/services/userApi'
+import { LessonCard } from '@/components/lessons/LessonCard'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { useAuth } from '@/hooks/useAuth'
+import { useRole } from '@/hooks/useRole'
+import { getMyProfile, getMyLessons, updateMyProfile } from '@/services/userApi'
 
 
 const profileSchema = z.object({

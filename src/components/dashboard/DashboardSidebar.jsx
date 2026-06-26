@@ -22,8 +22,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useRole } from '@/src/hooks/useRole'
+import { useAuth } from '@/hooks/useAuth'
+import { useRole } from '@/hooks/useRole'
 import toast from 'react-hot-toast'
 
 const USER_LINKS = [

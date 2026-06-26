@@ -1,6 +1,6 @@
 import { Inter, Playfair_Display, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { Providers } from '@/src/providers'
+import { Providers } from '@/providers'
 
 const inter = Inter({
   variable: '--font-geist-sans',

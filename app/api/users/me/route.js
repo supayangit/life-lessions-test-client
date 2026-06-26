@@ -35,14 +35,17 @@ export async function GET(req) {
     }
 
     const resp = {
+      success: true,
       _id: uid,
       name: userDoc?.name || session.user.name,
       email: session.user.email,
       image: userDoc?.image || session.user.image || null,
       bio: userDoc?.bio || session.user.bio || '',
       role: userDoc?.role || session.user.role || 'user',
-      lessonsCount: 0,
-      favoritesCount: 0,
+      isPremium: Boolean(userDoc?.isPremium),
+      premiumSince: userDoc?.premiumSince || null,
+      lessonsCount: userDoc?.lessonsCount || 0,
+      favoritesCount: userDoc?.favoritesCount || 0,
     }
 
     return Response.json(resp)

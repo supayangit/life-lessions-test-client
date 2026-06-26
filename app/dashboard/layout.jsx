@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { DashboardSidebar } from '@/src/components/dashboard/DashboardSidebar'
-import { DashboardTopbar } from '@/src/components/dashboard/DashboardTopbar'
+import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
+import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
 
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)

@@ -12,11 +12,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
 import { Skeleton } from '@/components/ui/skeleton'
-import { EmptyState } from '@/src/components/shared/EmptyState'
-import { ErrorState } from '@/src/components/shared/ErrorState'
-import { useRole } from '@/src/hooks/useRole'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getReportedLessons, deleteReportedLesson, ignoreReport } from '@/src/services/adminApi'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ErrorState } from '@/components/shared/ErrorState'
+import { useRole } from '@/hooks/useRole'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { getReportedLessons, deleteReportedLesson, ignoreReport } from '@/services/adminApi'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 

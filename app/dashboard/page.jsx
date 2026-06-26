@@ -23,11 +23,11 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useRole } from '@/src/hooks/useRole'
-import { getDashboardOverview } from '@/src/services/dashboardApi'
-import { StreakTracker } from '@/src/components/shared/StreakTracker'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { useAuth } from '@/hooks/useAuth'
+import { useRole } from '@/hooks/useRole'
+import { getDashboardOverview } from '@/services/dashboardApi'
+import { StreakTracker } from '@/components/shared/StreakTracker'
 
 /* ── Fallback mock data so the page renders without a backend ── */
 const MOCK_OVERVIEW = {

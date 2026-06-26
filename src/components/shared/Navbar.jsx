@@ -17,7 +17,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { ThemeToggle } from './ThemeToggle'
 import { useCommandPalette } from './CommandPalette'
 import { useSession, logout } from '@/lib/auth-client'
-import { useRole } from '@/src/hooks/useRole'
+import { useRole } from '@/hooks/useRole'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
 

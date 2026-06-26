@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Crown, BookOpen, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'

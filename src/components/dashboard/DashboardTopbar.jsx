@@ -4,10 +4,10 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Menu, Home, ChevronRight, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/src/components/shared/ThemeToggle'
+import { ThemeToggle } from '@/components/shared/ThemeToggle'
 import { Badge } from '@/components/ui/badge'
-import { useRole } from '@/src/hooks/useRole'
-import { useAuth } from '@/src/hooks/useAuth'
+import { useRole } from '@/hooks/useRole'
+import { useAuth } from '@/hooks/useAuth'
 
 const SEGMENT_LABELS = {
   dashboard: 'Dashboard',

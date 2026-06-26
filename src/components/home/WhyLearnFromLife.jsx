@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion'
 import { Heart, Users, Lightbulb, Shield } from 'lucide-react'
-import { Container } from '@/src/components/shared/Container'
-import { SectionHeading } from '@/src/components/shared/SectionHeading'
-import { AnimatedCounter } from '@/src/components/shared/AnimatedCounter'
+import { Container } from '@/components/shared/Container'
+import { SectionHeading } from '@/components/shared/SectionHeading'
+import { AnimatedCounter } from '@/components/shared/AnimatedCounter'
 
 const STATS = [
   { value: 1200, suffix: '+', label: 'Members' },

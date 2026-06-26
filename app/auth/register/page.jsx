@@ -10,7 +10,7 @@ import { Eye, EyeOff, BookOpen, Globe, CheckCircle2, XCircle } from 'lucide-reac
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useAuth } from '@/src/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 
 const registerSchema = z

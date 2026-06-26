@@ -15,15 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Container } from '@/src/components/shared/Container'
-import { SectionHeading } from '@/src/components/shared/SectionHeading'
-import { LessonGridSkeleton } from '@/src/components/shared/SkeletonLoader'
-import { ErrorState } from '@/src/components/shared/ErrorState'
-import { EmptyState } from '@/src/components/shared/EmptyState'
-import { LessonCard } from '@/src/components/lessons/LessonCard'
-import { getLessons } from '@/src/services/lessonApi'
-import { usePremium } from '@/src/hooks/usePremium'
-import { useDebounce } from '@/src/hooks/useDebounce'
+import { Container } from '@/components/shared/Container'
+import { SectionHeading } from '@/components/shared/SectionHeading'
+import { LessonGridSkeleton } from '@/components/shared/SkeletonLoader'
+import { ErrorState } from '@/components/shared/ErrorState'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { LessonCard } from '@/components/lessons/LessonCard'
+import { getLessons } from '@/services/lessonApi'
+import { usePremium } from '@/hooks/usePremium'
+import { useDebounce } from '@/hooks/useDebounce'
 
 const CATEGORIES = [
   'All',

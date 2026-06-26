@@ -31,6 +31,15 @@ export const auth = betterAuth({
         default: "user",
         type: "string",
       },
+      isPremium: {
+        default: false,
+        type: "boolean",
+      },
+      premiumSince: {
+        default: null,
+        type: "string",
+        nullable: true,
+      },
     },
   },
 

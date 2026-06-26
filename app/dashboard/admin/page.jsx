@@ -30,9 +30,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useRole } from '@/src/hooks/useRole'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getAdminOverview } from '@/src/services/adminApi'
+import { useRole } from '@/hooks/useRole'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { getAdminOverview } from '@/services/adminApi'
 
 // ── Animated counter ──────────────────────────────────────────────────────
 function AnimatedNumber({ value, duration = 1200 }) {

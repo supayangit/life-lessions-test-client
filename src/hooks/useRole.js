@@ -11,11 +11,13 @@ export function useRole() {
 
   const role = user?.role ?? null
 
+  const isPremium = Boolean(user?.isPremium)
+
   return {
     role,
     isAdmin: role === 'admin',
-    // primary source of truth: user.isPremium (boolean)
-    isPremium: Boolean(user?.isPremium),
+    // Primary source of truth: user.isPremium (from fresh API call, never cached)
+    isPremium,
     isPending,
   }
 }

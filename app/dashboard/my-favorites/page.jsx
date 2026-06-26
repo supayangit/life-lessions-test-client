@@ -13,11 +13,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { LessonCard } from '@/src/components/lessons/LessonCard'
+import { LessonCard } from '@/components/lessons/LessonCard'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { useRole } from '@/src/hooks/useRole'
-import { getMyFavorites, removeFavorite } from '@/src/services/favoritesApi'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { useRole } from '@/hooks/useRole'
+import { getMyFavorites, removeFavorite } from '@/services/favoritesApi'
 
 const CATEGORIES = ['All', 'Career', 'Relationships', 'Finance', 'Health', 'Mindset', 'Education', 'Parenting', 'Travel', 'Technology', 'Other']
 const TONES = ['All', 'Reflective', 'Hopeful', 'Cautionary', 'Motivational', 'Melancholic', 'Humorous']

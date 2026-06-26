@@ -16,9 +16,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getComments, addComment, deleteComment } from '@/src/services/commentsApi'
+import { useAuth } from '@/hooks/useAuth'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { getComments, addComment, deleteComment } from '@/services/commentsApi'
 
 const MOCK_COMMENTS = [
   {

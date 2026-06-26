@@ -11,11 +11,11 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { useAuth } from '@/src/hooks/useAuth'
-import { useRole } from '@/src/hooks/useRole'
-import { useAxiosSecure } from '@/src/hooks/useAxiosSecure'
-import { getAdminOverview } from '@/src/services/adminApi'
-import { getMyProfile } from '@/src/services/userApi'
+import { useAuth } from '@/hooks/useAuth'
+import { useRole } from '@/hooks/useRole'
+import { useAxiosSecure } from '@/hooks/useAxiosSecure'
+import { getAdminOverview } from '@/services/adminApi'
+import { getMyProfile } from '@/services/userApi'
 
 const MOCK_PROFILE = {
   name: 'Admin User',

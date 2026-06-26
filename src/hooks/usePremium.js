@@ -4,16 +4,16 @@ import { useRole } from './useRole'
 
 /**
  * Returns whether the current user has premium access.
+ * Derived from fresh API data (never from cache).
  */
 export function usePremium() {
-  const { role, isPremiumRole, isAdmin, isPending } = useRole()
+  const { isPremium, isAdmin, isPending } = useRole()
 
-  // Admins also get premium access
-  const isPremium = isPremiumRole || isAdmin
+  // Admins get premium access
+  const isPremiumUser = isPremium || isAdmin
 
   return {
-    isPremium,
+    isPremium: isPremiumUser,
     isPending,
-    role,
   }
 }
