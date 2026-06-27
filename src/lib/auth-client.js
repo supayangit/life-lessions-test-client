@@ -1,16 +1,17 @@
 import { createAuthClient } from "better-auth/react";
 import axios from "axios";
 
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL || ''
+
 /**
  * Unified Auth Client
  * Connects to the frontend's /api/auth endpoint (localhost:3000)
  */
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: AUTH_URL,
 });
 
-// ============ AUTHENTICATION FUNCTIONS =============
-
+// ============ AUTHENTICATION FUNCTIONS ============
 /**
  * Sign up a new user with email and password
  */

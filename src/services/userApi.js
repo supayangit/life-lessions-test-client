@@ -1,12 +1,24 @@
 import axiosPublic from './axios'
-import { updateUserProfile } from '@/lib/auth-client'
+import { authClient, updateUserProfile } from '@/lib/auth-client'
 
 /**
  * Fetch the current user's profile.
  */
 export async function getMyProfile(axiosSecure) {
   const instance = axiosSecure || axiosPublic
-  const { data } = await instance.get('/api/users/me')
+  const config = {}
+
+  if (!axiosSecure) {
+    const session = await authClient.getSession()
+    const token = session?.data?.session?.token
+    if (token) {
+      config.headers = {
+        Authorization: `Bearer ${token}`,
+      }
+    }
+  }
+
+  const { data } = await instance.get('/api/users/me', config)
   return data
 }
 
