@@ -24,6 +24,7 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
 import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
 import toast from 'react-hot-toast'
 
 const USER_LINKS = [
@@ -64,7 +65,8 @@ function SidebarLink({ href, label, icon: Icon, exact, onClick }) {
 
 export function DashboardSidebar({ onClose }) {
   const { user, logout } = useAuth()
-  const { isAdmin, isPremiumRole } = useRole()
+  const { isAdmin } = useRole()
+  const { isPremium } = usePremium()
 
   const initials = user?.name
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -118,7 +120,7 @@ export function DashboardSidebar({ onClose }) {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">{user?.name}</p>
             <div className="flex items-center gap-1 mt-0.5">
-              {isPremiumRole && (
+              {isPremium && (
                 <Badge className="h-4 text-[10px] px-1.5 bg-accent text-accent-foreground border-0 gap-0.5">
                   <Crown className="h-2.5 w-2.5" />
                   Premium
@@ -129,7 +131,7 @@ export function DashboardSidebar({ onClose }) {
                   Admin
                 </Badge>
               )}
-              {!isPremiumRole && !isAdmin && (
+              {!isPremium && !isAdmin && (
                 <span className="text-[10px] text-sidebar-foreground/60">Free</span>
               )}
             </div>

@@ -23,18 +23,28 @@ import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import { cn } from '@/lib/utils'
 
-const MOCK_LESSONS = Array.from({ length: 8 }, (_, i) => ({
-  _id: `lesson-${i}`,
-  title: ['Embrace Failure', 'The Power of No', 'Money Habits', 'Daily Gratitude', 'Learn Fast', 'Fear Less', 'Be Present', 'Give More'][i],
-  category: ['Career', 'Mindset', 'Finance', 'Health', 'Career', 'Mindset', 'Health', 'Relationships'][i],
-  author: { name: ['Aisha R.', 'Marco S.', 'Priya M.', 'James O.', 'Selin Y.', 'Leo C.', 'Fatima H.', 'Daniel O.'][i] },
-  visibility: i % 3 === 0 ? 'private' : 'public',
-  isFeatured: i % 4 === 0,
-  isReviewed: i % 2 === 0,
-  isFlagged: i === 3,
-  isPremium: i % 3 === 1,
-  createdAt: new Date(Date.now() - i * 3 * 24 * 60 * 60 * 1000).toISOString(),
-}))
+const MOCK_LESSONS = {
+  lessons: Array.from({ length: 8 }, (_, i) => ({
+    _id: `lesson-${i}`,
+    title: ['Embrace Failure', 'The Power of No', 'Money Habits', 'Daily Gratitude', 'Learn Fast', 'Fear Less', 'Be Present', 'Give More'][i],
+    category: ['Career', 'Mindset', 'Finance', 'Health', 'Career', 'Mindset', 'Health', 'Relationships'][i],
+    author: { name: ['Aisha R.', 'Marco S.', 'Priya M.', 'James O.', 'Selin Y.', 'Leo C.', 'Fatima H.', 'Daniel O.'][i] },
+    visibility: i % 3 === 0 ? 'private' : 'public',
+    isFeatured: i % 4 === 0,
+    isReviewed: i % 2 === 0,
+    isFlagged: i === 3,
+    isPremium: i % 3 === 1,
+    createdAt: new Date(Date.now() - i * 3 * 24 * 60 * 60 * 1000).toISOString(),
+  })),
+  pagination: {
+    total: 8,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  },
+}
 
 function LessonsTableSkeleton() {
   return (
@@ -110,7 +120,7 @@ export default function AdminLessonsPage() {
     if (result.isConfirmed) deleteLesson(lesson._id)
   }
 
-  const lessons = Array.isArray(data) ? data : MOCK_LESSONS
+  const lessons = data?.lessons || MOCK_LESSONS.lessons || []
 
   const categories = ['all', ...new Set(lessons.map((l) => l.category).filter(Boolean))]
 

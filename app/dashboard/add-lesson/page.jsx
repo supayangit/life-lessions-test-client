@@ -8,7 +8,7 @@ import toast from 'react-hot-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LessonForm } from '@/components/dashboard/LessonForm'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
-import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
 import { createLesson } from '@/services/lessonApi'
 
 
@@ -16,7 +16,7 @@ export default function AddLessonPage() {
   const router = useRouter()
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
-  const { isPremiumRole } = useRole()
+  const { isPremium } = usePremium()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (lessonData) => createLesson(lessonData, axiosSecure),
@@ -57,7 +57,7 @@ export default function AddLessonPage() {
         <CardContent>
           <LessonForm
             onSubmit={mutate}
-            isPremiumUser={isPremiumRole}
+            isPremiumUser={isPremium}
             isSubmitting={isPending}
             submitLabel="Publish Lesson"
           />

@@ -16,7 +16,7 @@ import {
 import { LessonCard } from '@/components/lessons/LessonCard'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
-import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
 import { getMyFavorites, removeFavorite } from '@/services/favoritesApi'
 
 const CATEGORIES = ['All', 'Career', 'Relationships', 'Finance', 'Health', 'Mindset', 'Education', 'Parenting', 'Travel', 'Technology', 'Other']
@@ -26,7 +26,7 @@ const PAGE_SIZE = 6
 export default function MyFavoritesPage() {
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
-  const { isPremiumRole } = useRole()
+  const { isPremium } = usePremium()
 
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
@@ -191,7 +191,7 @@ export default function MyFavoritesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {lessons.map((lesson) => (
               <div key={lesson._id} className="relative group">
-                <LessonCard lesson={lesson} isPremiumUser={isPremiumRole} />
+                <LessonCard lesson={lesson} isPremiumUser={isPremium} />
                 {/* Remove favorite overlay button */}
                 <button
                   onClick={() => removeMutation.mutate(lesson._id)}

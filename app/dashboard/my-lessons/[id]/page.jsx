@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton'
 import { LessonForm } from '@/components/dashboard/LessonForm'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
-import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
 import { getLessonById, updateLesson } from '@/services/lessonApi'
 
 export default function UpdateLessonPage({ params }) {
@@ -16,7 +16,7 @@ export default function UpdateLessonPage({ params }) {
   const router = useRouter()
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
-  const { isPremiumRole } = useRole()
+  const { isPremium } = usePremium()
 
   const { data: lessonData, isLoading } = useQuery({
     queryKey: ['lesson', id],
@@ -76,7 +76,7 @@ export default function UpdateLessonPage({ params }) {
                 accessLevel: lesson?.accessLevel || 'free',
               }}
               onSubmit={mutate}
-              isPremiumUser={isPremiumRole}
+              isPremiumUser={isPremium}
               isSubmitting={isPending}
               submitLabel="Update Lesson"
             />

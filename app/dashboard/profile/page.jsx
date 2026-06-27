@@ -27,6 +27,7 @@ import { Separator } from '@/components/ui/separator'
 import { LessonCard } from '@/components/lessons/LessonCard'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { useAuth } from '@/hooks/useAuth'
+import { usePremium } from '@/hooks/usePremium'
 import { useRole } from '@/hooks/useRole'
 import { getMyProfile, getMyLessons, updateMyProfile } from '@/services/userApi'
 
@@ -55,7 +56,8 @@ export default function ProfilePage() {
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { user } = useAuth()
-  const { isPremiumRole, isAdmin } = useRole()
+  const { isAdmin } = useRole()
+  const { isPremium } = usePremium()
   const [editing, setEditing] = useState(false)
 
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -118,9 +120,14 @@ export default function ProfilePage() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const { mutate: updateProfile, isPending } = useMutation({
-    mutationFn: (profileData) => updateMyProfile(profileData),
+    mutationFn: (profileData) => {
+      console.log('[ProfilePage] Submitting profile data:', profileData)
+      return updateMyProfile(profileData)
+    },
     onSuccess: (updatedProfile) => {
-      toast.success('Profile updated!')
+      console.log('[ProfilePage] Update successful, returned profile:', updatedProfile)
+      console.log('[ProfilePage] Profile fields - name:', updatedProfile?.name, 'bio:', updatedProfile?.bio, 'image:', updatedProfile?.image)
+      toast.success('Profile updated successfully!')
       queryClient.invalidateQueries({ queryKey: ['my-profile'] })
       setEditing(false)
       // Reset form with updated profile data
@@ -131,6 +138,7 @@ export default function ProfilePage() {
       })
     },
     onError: (error) => {
+      console.error('[ProfilePage] Update profile error:', error?.response?.status, error?.response?.data || error.message)
       const message = error?.response?.data?.message || 'Failed to update profile'
       toast.error(message)
     },
@@ -212,7 +220,7 @@ export default function ProfilePage() {
                 <>
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-xl font-bold font-serif text-foreground">{displayName}</h1>
-                    {isPremiumRole && (
+                    {isPremium && (
                       <Badge className="flex items-center gap-1 bg-accent text-accent-foreground border-0 text-xs">
                         <Crown className="h-3 w-3" /> Premium
                       </Badge>
@@ -318,7 +326,7 @@ export default function ProfilePage() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {publicLessons.map((lesson) => (
-                <LessonCard key={lesson._id} lesson={lesson} isPremiumUser={isPremiumRole} />
+                <LessonCard key={lesson._id} lesson={lesson} isPremiumUser={isPremium} />
               ))}
             </div>
 

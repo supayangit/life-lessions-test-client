@@ -28,6 +28,7 @@ import { CommentsSection } from '@/components/lessons/CommentsSection'
 import { ScrollProgressBar } from '@/components/shared/ScrollProgressBar'
 import { ReadingTime } from '@/components/shared/ReadingTime'
 import { getLessonById } from '@/services/lessonApi'
+import { getUserById } from '@/services/userApi'
 import { usePremium } from '@/hooks/usePremium'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
@@ -75,6 +76,15 @@ export default function LessonDetailPage() {
 
   const lessonResponse = data || {}
   const lesson = lessonResponse.lesson || data
+
+  // Fetch creator data to get lessonCount
+  const { data: creatorData } = useQuery({
+    queryKey: ['user', lesson?.creatorId],
+    queryFn: () => getUserById(lesson?.creatorId),
+    enabled: Boolean(lesson?.creatorId),
+  })
+
+  console.log("creatordata,", creatorData);
 
   useEffect(() => {
     if (lesson) {
@@ -358,7 +368,7 @@ export default function LessonDetailPage() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Total Lessons</span>
-                    <span className="font-semibold text-foreground">{lesson.lessonsCount || lesson.lessonCount || 0}</span>
+                    <span className="font-semibold text-foreground">{creatorData?.lessonsCount || 0}</span>
                   </div>
                   <Button asChild variant="outline" className="w-full">
                     <Link href={`/user/profile?userId=${creatorId}`}>

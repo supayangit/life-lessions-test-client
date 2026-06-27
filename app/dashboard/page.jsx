@@ -25,7 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { useAuth } from '@/hooks/useAuth'
-import { useRole } from '@/hooks/useRole'
+import { usePremium } from '@/hooks/usePremium'
 import { getDashboardOverview } from '@/services/dashboardApi'
 import { StreakTracker } from '@/components/shared/StreakTracker'
 
@@ -83,7 +83,7 @@ function StatCard({ label, value, icon: Icon, color, loading }) {
 export default function DashboardPage() {
   const axiosSecure = useAxiosSecure()
   const { user } = useAuth()
-  const { isPremiumRole } = useRole()
+  const { isPremium } = usePremium()
 
   const { data: overview, isLoading } = useQuery({
     queryKey: ['dashboard-overview'],
@@ -109,7 +109,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <StreakTracker />
-          {isPremiumRole && (
+          {isPremium && (
             <Badge className="flex items-center gap-1.5 bg-accent text-accent-foreground border-0 px-3 py-1 text-sm">
               <Crown className="h-3.5 w-3.5" />
               Premium Member

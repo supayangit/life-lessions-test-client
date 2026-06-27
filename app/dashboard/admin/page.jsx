@@ -196,19 +196,26 @@ export default function AdminOverviewPage() {
           <CardContent>
             <ul className="space-y-3">
               {(d.topContributors || []).map((user, i) => {
-                const initials = user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+                const displayName = user?.name || user?.email || 'User'
+                const initials = displayName
+                  .split(' ')
+                  .filter(Boolean)
+                  .map((n) => n[0])
+                  .join('')
+                  .toUpperCase()
+                  .slice(0, 2)
                 return (
                   <li key={i} className="flex items-center gap-3">
                     <span className="text-xs text-muted-foreground w-4 flex-shrink-0">{i + 1}</span>
                     <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage src={user.image} alt={user.name} />
+                      <AvatarImage src={user?.image} alt={displayName} />
                       <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{initials}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                      <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                     </div>
-                    <Badge variant="secondary" className="text-xs flex-shrink-0">{user.lessonsCount} lessons</Badge>
+                    <Badge variant="secondary" className="text-xs flex-shrink-0">{user?.lessonsCount ?? 0} lessons</Badge>
                   </li>
                 )
               })}

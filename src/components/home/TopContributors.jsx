@@ -30,6 +30,8 @@ export function TopContributors() {
 
   const contributors = data?.contributors || data || []
 
+  console.log("contributors,", contributors);
+
   return (
     <section className="py-16 bg-background">
       <Container>

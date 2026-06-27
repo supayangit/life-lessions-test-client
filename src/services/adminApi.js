@@ -19,6 +19,11 @@ export async function updateUserRole(userId, role, axiosSecure) {
   return data
 }
 
+export async function updateUserSubscription(userId, isPremium, axiosSecure) {
+  const { data } = await axiosSecure.patch(`/api/admin/users/${userId}/subscription`, { isPremium })
+  return data
+}
+
 // ── Lessons ───────────────────────────────────────────────────────────────
 export async function getAdminLessons(axiosSecure, params = {}) {
   const { data } = await axiosSecure.get('/api/admin/lessons', { params })

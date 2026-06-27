@@ -12,6 +12,7 @@ import { LessonCard } from '@/components/lessons/LessonCard'
 import { Container } from '@/components/shared/Container'
 import { SectionHeading } from '@/components/shared/SectionHeading'
 import { getUserById, getUserPublicLessons } from '@/services/userApi'
+import { usePremium } from '@/hooks/usePremium'
 
 function StatCard({ icon: Icon, value, label, color }) {
   return (
@@ -32,6 +33,7 @@ export default function PublicProfilePage() {
   const userId = searchParams.get('userId')
   const sentinelRef = useRef(null)
   const nextPageRequestRef = useRef(false)
+  const { isPremium } = usePremium()
 
   const {
     data: profileData,
@@ -204,7 +206,7 @@ export default function PublicProfilePage() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {publicLessons.map((lesson) => (
-                <LessonCard key={lesson._id} lesson={lesson} isPremiumUser={false} />
+                <LessonCard key={lesson._id} lesson={lesson} isPremiumUser={isPremium} />
               ))}
             </div>
 

@@ -77,6 +77,7 @@ export async function logout() {
  */
 export async function updateUserProfile(profileData) {
   try {
+    console.log('[auth-client] Update profile - submitting payload:', profileData)
     const response = await axios.put(
       "http://localhost:5000/api/users/me",
       profileData,
@@ -87,9 +88,12 @@ export async function updateUserProfile(profileData) {
         },
       }
     );
-    return response.data;
+    console.log('[auth-client] Update profile - full response:', response.data)
+    console.log('[auth-client] Update profile - returning user object:', response.data.user)
+    // Backend returns { success, message, user } - extract the user object
+    return response.data.user || response.data;
   } catch (error) {
-    console.error("Update profile error:", error);
+    console.error('[auth-client] Update profile error:', error?.response?.status, error?.response?.data || error.message)
     throw error;
   }
 }

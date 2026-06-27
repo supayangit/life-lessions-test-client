@@ -20,37 +20,39 @@ import { getReportedLessons, deleteReportedLesson, ignoreReport } from '@/servic
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
-const MOCK_REPORTS = [
-  {
-    _id: 'r1',
-    lesson: { _id: 'l1', title: 'Toxic Productivity Culture' },
-    reportCount: 4,
-    reports: [
-      { reason: 'Misleading', reporter: { name: 'Aisha R.', image: null }, createdAt: new Date().toISOString() },
-      { reason: 'Spam', reporter: { name: 'Marco S.', image: null }, createdAt: new Date().toISOString() },
-      { reason: 'Harassment', reporter: { name: 'Priya M.', image: null }, createdAt: new Date().toISOString() },
-      { reason: 'Other', reporter: { name: 'James O.', image: null }, createdAt: new Date().toISOString() },
-    ],
-  },
-  {
-    _id: 'r2',
-    lesson: { _id: 'l2', title: 'Manipulation Tactics That Work' },
-    reportCount: 2,
-    reports: [
-      { reason: 'Inappropriate', reporter: { name: 'Selin Y.', image: null }, createdAt: new Date().toISOString() },
-      { reason: 'Misleading', reporter: { name: 'Leo C.', image: null }, createdAt: new Date().toISOString() },
-    ],
-  },
-  {
-    _id: 'r3',
-    lesson: { _id: 'l3', title: 'Get Rich Quick with Crypto' },
-    reportCount: 7,
-    reports: [
-      { reason: 'Spam', reporter: { name: 'Fatima H.', image: null }, createdAt: new Date().toISOString() },
-      { reason: 'Misleading', reporter: { name: 'Daniel O.', image: null }, createdAt: new Date().toISOString() },
-    ],
-  },
-]
+const MOCK_REPORTS = {
+  data: [
+    {
+      _id: 'r1',
+      lesson: { _id: 'l1', title: 'Toxic Productivity Culture' },
+      reportCount: 4,
+      reports: [
+        { reason: 'Misleading', reporter: { name: 'Aisha R.', image: null }, createdAt: new Date().toISOString() },
+        { reason: 'Spam', reporter: { name: 'Marco S.', image: null }, createdAt: new Date().toISOString() },
+        { reason: 'Harassment', reporter: { name: 'Priya M.', image: null }, createdAt: new Date().toISOString() },
+        { reason: 'Other', reporter: { name: 'James O.', image: null }, createdAt: new Date().toISOString() },
+      ],
+    },
+    {
+      _id: 'r2',
+      lesson: { _id: 'l2', title: 'Manipulation Tactics That Work' },
+      reportCount: 2,
+      reports: [
+        { reason: 'Inappropriate', reporter: { name: 'Selin Y.', image: null }, createdAt: new Date().toISOString() },
+        { reason: 'Misleading', reporter: { name: 'Leo C.', image: null }, createdAt: new Date().toISOString() },
+      ],
+    },
+    {
+      _id: 'r3',
+      lesson: { _id: 'l3', title: 'Get Rich Quick with Crypto' },
+      reportCount: 7,
+      reports: [
+        { reason: 'Spam', reporter: { name: 'Fatima H.', image: null }, createdAt: new Date().toISOString() },
+        { reason: 'Misleading', reporter: { name: 'Daniel O.', image: null }, createdAt: new Date().toISOString() },
+      ],
+    },
+  ],
+}
 
 const REASON_COLORS = {
   Spam: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
@@ -152,7 +154,7 @@ export default function AdminReportsPage() {
     onError: () => toast.error('Failed to ignore report'),
   })
 
-  const reports = Array.isArray(data) ? data : MOCK_REPORTS
+  const reports = data?.data || MOCK_REPORTS.data || []
 
   if (rolePending) return null
 

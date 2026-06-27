@@ -16,25 +16,42 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { useRole } from '@/hooks/useRole'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
-import { getAdminUsers, updateUserRole } from '@/services/adminApi'
+import { getAdminUsers, updateUserRole, updateUserSubscription } from '@/services/adminApi'
 import { useDebounce } from '@/hooks/useDebounce'
 import toast from 'react-hot-toast'
 
 const ROLE_LABELS = {
-  free: { label: 'Free', variant: 'secondary', icon: UserIcon },
-  premium: { label: 'Premium', variant: 'outline', icon: Crown, className: 'border-accent text-accent-foreground' },
+  user: { label: 'User', variant: 'secondary', icon: UserIcon },
+  contributor: { label: 'Contributor', variant: 'outline', icon: UserIcon },
   admin: { label: 'Admin', variant: 'destructive', icon: ShieldCheck },
 }
 
-const MOCK_USERS = Array.from({ length: 8 }, (_, i) => ({
-  _id: `user-${i}`,
-  name: ['Aisha Rahman', 'Marco Silva', 'Priya Mehta', 'James Okafor', 'Selin Yıldız', 'Leo Chen', 'Fatima Al-Hassan', 'Daniel Owusu'][i],
-  email: `user${i}@example.com`,
-  role: ['free', 'premium', 'free', 'admin', 'free', 'premium', 'free', 'free'][i],
-  lessonsCount: [24, 19, 15, 12, 9, 7, 5, 3][i],
-  image: null,
-  createdAt: new Date(Date.now() - i * 7 * 24 * 60 * 60 * 1000).toISOString(),
-}))
+const SUBSCRIPTION_LABELS = {
+  free: { label: 'Free', variant: 'secondary' },
+  premium: { label: 'Premium', variant: 'outline', className: 'border-accent text-accent-foreground' },
+  admin: { label: 'Admin', variant: 'destructive' },
+}
+
+const MOCK_USERS = {
+  users: Array.from({ length: 8 }, (_, i) => ({
+    _id: `user-${i}`,
+    name: ['Aisha Rahman', 'Marco Silva', 'Priya Mehta', 'James Okafor', 'Selin Yıldız', 'Leo Chen', 'Fatima Al-Hassan', 'Daniel Owusu'][i],
+    email: `user${i}@example.com`,
+    role: ['user', 'user', 'user', 'admin', 'user', 'user', 'user', 'user'][i],
+    isPremium: [false, true, false, false, false, true, false, false][i],
+    lessonsCount: [24, 19, 15, 12, 9, 7, 5, 3][i],
+    image: null,
+    createdAt: new Date(Date.now() - i * 7 * 24 * 60 * 60 * 1000).toISOString(),
+  })),
+  pagination: {
+    total: 8,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+    hasNextPage: false,
+    hasPrevPage: false,
+  },
+}
 
 function UserTableSkeleton() {
   return (
@@ -83,7 +100,16 @@ export default function AdminUsersPage() {
     onError: () => toast.error('Failed to update role'),
   })
 
-  const users = Array.isArray(data) ? data : MOCK_USERS
+  const { mutate: changeSubscription, isPending: changingSubscription, variables: subVars } = useMutation({
+    mutationFn: ({ userId, isPremium }) => updateUserSubscription(userId, isPremium, axiosSecure),
+    onSuccess: () => {
+      toast.success('Subscription updated successfully')
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] })
+    },
+    onError: () => toast.error('Failed to update subscription'),
+  })
+
+  const users = data?.users || []
 
   const filtered = debouncedSearch
     ? users.filter((u) =>
@@ -134,14 +160,18 @@ export default function AdminUsersPage() {
                     <TableHead>Email</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead className="text-right">Lessons</TableHead>
-                    <TableHead>Change Role</TableHead>
+                    <TableHead>Subscription</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.map((user) => {
                     const initials = user.name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
-                    const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.free
-                    const isChanging = changingRole && variables?.userId === user._id
+                    const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.user
+                    const isAdmin = user.role === 'admin'
+                    const subscriptionValue = isAdmin ? 'admin' : (user.isPremium ? 'premium' : 'free')
+                    const subscriptionInfo = SUBSCRIPTION_LABELS[subscriptionValue]
+                    const isChangingRole = changingRole && variables?.userId === user._id
+                    const isChangingSubscription = changingSubscription && subVars?.userId === user._id
 
                     return (
                       <TableRow key={user._id}>
@@ -156,29 +186,48 @@ export default function AdminUsersPage() {
                         </TableCell>
                         <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
                         <TableCell>
-                          <Badge variant={roleInfo.variant} className={roleInfo.className || ''}>
-                            {roleInfo.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right text-sm text-muted-foreground">{user.lessonsCount ?? 0}</TableCell>
-                        <TableCell>
                           <div className="flex items-center gap-2">
                             <Select
-                              defaultValue={user.role}
+                              value={user.role || 'user'}
                               onValueChange={(role) => changeRole({ userId: user._id, role })}
-                              disabled={isChanging}
+                              disabled={isChangingRole}
                             >
-                              <SelectTrigger className="h-8 w-28 text-xs">
+                              <SelectTrigger className="h-8 w-32 text-xs">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="free">Free</SelectItem>
-                                <SelectItem value="premium">Premium</SelectItem>
+                                <SelectItem value="user">User</SelectItem>
+                                <SelectItem value="contributor">Contributor</SelectItem>
                                 <SelectItem value="admin">Admin</SelectItem>
                               </SelectContent>
                             </Select>
-                            {isChanging && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                            {isChangingRole && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                           </div>
+                        </TableCell>
+                        <TableCell className="text-right text-sm text-muted-foreground">{user.lessonsCount ?? 0}</TableCell>
+                        <TableCell>
+                          {isAdmin ? (
+                            <Badge variant={subscriptionInfo.variant} className={subscriptionInfo.className || ''}>
+                              {subscriptionInfo.label}
+                            </Badge>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Select
+                                value={subscriptionValue}
+                                onValueChange={(value) => changeSubscription({ userId: user._id, isPremium: value === 'premium' })}
+                                disabled={isChangingSubscription}
+                              >
+                                <SelectTrigger className="h-8 w-28 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="free">Free</SelectItem>
+                                  <SelectItem value="premium">Premium</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              {isChangingSubscription && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                            </div>
+                          )}
                         </TableCell>
                       </TableRow>
                     )
