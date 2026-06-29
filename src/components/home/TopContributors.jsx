@@ -69,9 +69,13 @@ export function TopContributors() {
                 ? contributor.creatorName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
                 : 'U'
 
+              const contributorKey = contributor.creatorId
+                ? `${contributor.creatorId}-${index}`
+                : `contributor-${index}`
+
               return (
                 <Link
-                  key={contributor.creatorId || index}
+                  key={contributorKey}
                   href={`/user/profile?userId=${contributor.creatorId}`}
                   className="group"
                 >

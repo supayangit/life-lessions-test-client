@@ -1,14 +1,22 @@
 import { createAuthClient } from "better-auth/react";
 import axios from "axios";
 
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL || ''
+const AUTH_URL =
+  process.env.NEXT_PUBLIC_AUTH_URL ||
+  (process.env.NEXT_PUBLIC_API_URL
+    ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '')}/api/auth`
+    : undefined) ||
+  '/api/auth'
 
 /**
  * Unified Auth Client
- * Connects to the frontend's /api/auth endpoint (localhost:3000)
+ * Connects to the backend auth endpoint for the current API host.
  */
 export const authClient = createAuthClient({
   baseURL: AUTH_URL,
+  fetchOptions: {
+    credentials: 'include',
+  },
 });
 
 // ============ AUTHENTICATION FUNCTIONS ============
@@ -39,6 +47,9 @@ export async function login({ email, password }) {
       email,
       password,
     });
+
+    // Ensure the auth session is resolved before the app fetches protected data.
+    await authClient.getSession();
     return response;
   } catch (error) {
     console.error("Login error:", error);
@@ -51,10 +62,13 @@ export async function login({ email, password }) {
  */
 export async function signInWithGoogle() {
   try {
-    return await authClient.signIn.social({
+    const response = await authClient.signIn.social({
       provider: "google",
       callbackURL: `${typeof window !== "undefined" ? window.location.origin : ""}/`,
     });
+
+    await authClient.getSession();
+    return response;
   } catch (error) {
     console.error("Google signin error:", error);
     throw error;

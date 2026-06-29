@@ -25,11 +25,9 @@ export function useAxiosSecure() {
 
     // Request interceptor — attach bearer token if available
     instance.interceptors.request.use(async (config) => {
-      const session = await authClient.getSession()
-      const token = session?.data?.session?.token
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
+      // Note: withCredentials: true already sends cookies automatically.
+      // Token attachment is skipped to avoid excessive session polling.
+      // Backend receives either httpOnly cookie or falls back to Authorization header if needed.
       return config
     })
 

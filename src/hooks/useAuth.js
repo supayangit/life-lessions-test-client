@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { login, signup, logout, signInWithGoogle } from '@/lib/auth-client'
 import { getMyProfile } from '@/services/userApi'
 
@@ -10,9 +10,7 @@ import { getMyProfile } from '@/services/userApi'
  * Does not depend on better-auth's useSession() to avoid context issues.
  */
 export function useAuth() {
-  const queryClient = useQueryClient()
-
-  const { data: user, isPending, error, refetch } = useQuery({
+  const { data: user, isLoading, isPending, isFetching, error, refetch } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       try {
@@ -27,14 +25,17 @@ export function useAuth() {
       }
     },
     retry: false,
-    staleTime: 0, // Always fetch fresh data
-    gcTime: 0, // Never cache
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes before refetching
+      gcTime: 10 * 60 * 1000, // Keep in memory for 10 minutes
     refetchOnWindowFocus: false,
   })
 
+  const isAuthLoading = isLoading || isPending || isFetching
+
   return {
     user: user || null,
-    isPending,
+    isLoading: isAuthLoading,
+    isPending: isAuthLoading,
     error,
     isAuthenticated: Boolean(user),
     refetch,

@@ -1,31 +1,32 @@
 'use client'
 
-import { redirect } from 'next/navigation'
-import { useEffect } from 'react'
-import { LoadingSpinner } from './LoadingSpinner'
 import { useAuth } from '@/hooks/useAuth'
+import { LoadingSpinner } from './LoadingSpinner'
+import { ErrorState } from './ErrorState'
 
 /**
- * ProtectedRoute: Wraps protected page content.
- * - Shows spinner while checking auth state
- * - Redirects to login if not authenticated
- * - Renders children if authenticated
+ * ProtectedRoute — Wrapper component that guards content based on auth state.
+ * Shows spinner while loading, error if not authenticated, or content if authenticated.
  */
-export function ProtectedRoute({ children, fallback = <LoadingSpinner /> }) {
-  const { user, isPending } = useAuth()
+export function ProtectedRoute({ children, fallback = null }) {
+  const { user, isLoading, isAuthenticated } = useAuth()
 
-  useEffect(() => {
-    // Redirect if auth check completed and user is not authenticated
-    if (!isPending && !user) {
-      redirect('/auth/login')
-    }
-  }, [user, isPending])
-
-  // Show loading state while checking auth
-  if (isPending) {
-    return fallback
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <LoadingSpinner />
+      </div>
+    )
   }
 
-  // User is authenticated, render children
-  return <>{children}</>
+  if (!isAuthenticated || !user) {
+    return fallback || (
+      <ErrorState
+        title="Access Denied"
+        message="You must be logged in to access this content."
+      />
+    )
+  }
+
+  return children
 }

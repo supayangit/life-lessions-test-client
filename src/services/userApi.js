@@ -6,11 +6,19 @@ import { authClient, updateUserProfile } from '@/lib/auth-client'
  */
 export async function getMyProfile(axiosSecure) {
   const instance = axiosSecure || axiosPublic
-  const config = {}
+  const config = {
+    withCredentials: true,
+  }
 
   if (!axiosSecure) {
     const session = await authClient.getSession()
-    const token = session?.data?.session?.token
+    const token =
+      session?.data?.session?.token ||
+      session?.data?.token ||
+      session?.token ||
+      session?.data?.session?.accessToken ||
+      session?.data?.session?.access_token
+
     if (token) {
       config.headers = {
         Authorization: `Bearer ${token}`,
