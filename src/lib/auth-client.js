@@ -1,11 +1,11 @@
 import { createAuthClient } from "better-auth/react";
 import axios from "axios";
 
-const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || process.env.NEXT_PUBLIC_API_URL || ''
+const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || '/api/auth'
 
 /**
  * Unified Auth Client
- * Connects to the frontend's /api/auth endpoint (localhost:3000)
+ * Connects to the frontend's local /api/auth endpoint.
  */
 export const authClient = createAuthClient({
   baseURL: AUTH_URL,
@@ -80,7 +80,7 @@ export async function updateUserProfile(profileData) {
   try {
     console.log('[auth-client] Update profile - submitting payload:', profileData)
     const response = await axios.put(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/me`,
+      '/api/users/me',
       profileData,
       {
         withCredentials: true,
