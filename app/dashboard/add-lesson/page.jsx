@@ -10,9 +10,9 @@ import { LessonForm } from '@/components/dashboard/LessonForm'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { createLesson } from '@/services/lessonApi'
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 
-
-export default function AddLessonPage() {
+function AddLessonContent() {
   const router = useRouter()
   const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
@@ -64,5 +64,13 @@ export default function AddLessonPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function AddLessonPage() {
+  return (
+    <ProtectedRoute>
+      <AddLessonContent />
+    </ProtectedRoute>
   )
 }

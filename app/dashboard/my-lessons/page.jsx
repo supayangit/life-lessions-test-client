@@ -41,6 +41,7 @@ import {
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/services/lessonApi'
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 
 function LessonRowSkeleton() {
   return (
@@ -52,7 +53,7 @@ function LessonRowSkeleton() {
   )
 }
 
-export default function MyLessonsPage() {
+function MyLessonsContent() {
   const axiosSecure = useAxiosSecure()
   const { isPremium } = usePremium()
   const queryClient = useQueryClient()
@@ -446,5 +447,13 @@ export default function MyLessonsPage() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function MyLessonsPage() {
+  return (
+    <ProtectedRoute>
+      <MyLessonsContent />
+    </ProtectedRoute>
   )
 }

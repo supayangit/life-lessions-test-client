@@ -31,6 +31,7 @@ import { usePremium } from '@/hooks/usePremium'
 import { getDashboardOverview } from '@/services/dashboardApi'
 import { StreakTracker } from '@/components/shared/StreakTracker'
 import { ErrorState } from '@/components/shared/ErrorState'
+import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 
 function StatCard({ label, value, icon: Icon, color, loading }) {
   return (
@@ -54,7 +55,7 @@ function StatCard({ label, value, icon: Icon, color, loading }) {
   )
 }
 
-export default function DashboardClient() {
+function DashboardContent() {
   const axiosSecure = useAxiosSecure()
   const { user } = useAuth()
   const { isPremium } = usePremium()
@@ -227,5 +228,13 @@ export default function DashboardClient() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function DashboardClient() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
   )
 }
