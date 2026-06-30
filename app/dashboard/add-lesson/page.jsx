@@ -10,7 +10,6 @@ import { LessonForm } from '@/components/dashboard/LessonForm'
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { createLesson } from '@/services/lessonApi'
-import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 
 function AddLessonContent() {
   const router = useRouter()
@@ -68,9 +67,5 @@ function AddLessonContent() {
 }
 
 export default function AddLessonPage() {
-  return (
-    <ProtectedRoute>
-      <AddLessonContent />
-    </ProtectedRoute>
-  )
+  return <AddLessonContent />
 }

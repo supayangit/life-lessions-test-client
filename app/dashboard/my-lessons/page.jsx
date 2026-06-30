@@ -41,7 +41,6 @@ import {
 import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/services/lessonApi'
-import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
 
 function LessonRowSkeleton() {
   return (
@@ -451,9 +450,5 @@ function MyLessonsContent() {
 }
 
 export default function MyLessonsPage() {
-  return (
-    <ProtectedRoute>
-      <MyLessonsContent />
-    </ProtectedRoute>
-  )
+  return <MyLessonsContent />
 }

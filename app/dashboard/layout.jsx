@@ -4,16 +4,16 @@ import { useState } from 'react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
-import { ProtectedRoute } from '@/components/shared/ProtectedRoute'
+import { DashboardGuard } from '@/components/shared/DashboardGuard'
 
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <ProtectedRoute>
+    <DashboardGuard>
       <div className="flex min-h-screen bg-background">
         {/* Desktop sidebar — always visible ≥1024px */}
-        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:flex-shrink-0">
+        <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0">
           <div className="fixed inset-y-0 left-0 w-64 z-20">
             <DashboardSidebar />
           </div>
@@ -34,6 +34,6 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </div>
-    </ProtectedRoute>
+    </DashboardGuard>
   )
 }
