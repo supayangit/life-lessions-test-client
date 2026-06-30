@@ -37,10 +37,6 @@ export default function AdminProfilePage() {
   const { role, isAdmin, isCeo, isPending: rolePending } = useRole()
   const axiosSecure = useAxiosSecure()
 
-  useEffect(() => {
-    if (!rolePending && !isAdmin) router.replace('/dashboard')
-  }, [isAdmin, rolePending, router])
-
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['my-profile'],
     queryFn: () => getMyProfile(axiosSecure),

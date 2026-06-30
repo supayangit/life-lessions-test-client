@@ -87,10 +87,6 @@ export default function AdminOverviewPage() {
   const { isAdmin, isPending: rolePending } = useRole()
   const axiosSecure = useAxiosSecure()
 
-  useEffect(() => {
-    if (!rolePending && !isAdmin) router.replace('/dashboard')
-  }, [isAdmin, rolePending, router])
-
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: () => getAdminOverview(axiosSecure),

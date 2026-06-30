@@ -59,10 +59,6 @@ export default function AdminReportsPage() {
   const queryClient = useQueryClient()
   const [expandedReportId, setExpandedReportId] = useState(null)
 
-  useEffect(() => {
-    if (!rolePending && !isAdmin) router.replace('/dashboard')
-  }, [isAdmin, rolePending, router])
-
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-reports'],
     queryFn: () => getReportedLessons(axiosSecure),

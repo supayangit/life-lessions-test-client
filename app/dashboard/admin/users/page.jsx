@@ -89,10 +89,6 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 400)
 
-  useEffect(() => {
-    if (!rolePending && !isAdmin) router.replace('/dashboard')
-  }, [isAdmin, rolePending, router])
-
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-users', debouncedSearch],
     queryFn: () => getAdminUsers(axiosSecure, { search: debouncedSearch }),

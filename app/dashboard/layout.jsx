@@ -4,13 +4,11 @@ import { useState } from 'react'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar'
 import { DashboardTopbar } from '@/components/dashboard/DashboardTopbar'
-import { DashboardGuard } from '@/components/shared/DashboardGuard'
 
 export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <DashboardGuard>
       <div className="flex min-h-screen bg-background">
         {/* Desktop sidebar — always visible ≥1024px */}
         <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0">
@@ -34,6 +32,5 @@ export default function DashboardLayout({ children }) {
         </main>
       </div>
     </div>
-    </DashboardGuard>
   )
 }

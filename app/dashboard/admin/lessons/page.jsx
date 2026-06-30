@@ -59,10 +59,6 @@ export default function AdminLessonsPage() {
   const sentinelRef = useRef(null)
   const nextPageRequestRef = useRef(false)
 
-  useEffect(() => {
-    if (!rolePending && !isAdmin) router.replace('/dashboard')
-  }, [isAdmin, rolePending, router])
-
   const {
     data,
     isLoading,
