@@ -186,7 +186,8 @@ Replace these images with actual screenshots after deployment.
 /screenshots/home.png
 ```
 
-<img src="./screenshots/home.png" alt="Home Page" />
+<img width="1920" height="1080" alt="Screenshot (290)" src="https://github.com/user-attachments/assets/86bcdfd6-466e-4539-bcab-919d24b605f7" />
+
 
 ---
 
@@ -196,7 +197,7 @@ Replace these images with actual screenshots after deployment.
 /screenshots/public-lessons.png
 ```
 
-<img src="./screenshots/public-lessons.png" alt="Public Lessons" />
+<img width="1920" height="1080" alt="Screenshot (291)" src="https://github.com/user-attachments/assets/1943a8c7-d6c3-4678-a313-f7e6215ccda5" />
 
 ---
 
@@ -206,7 +207,8 @@ Replace these images with actual screenshots after deployment.
 /screenshots/dashboard.png
 ```
 
-<img src="./screenshots/dashboard.png" alt="Dashboard" />
+<img width="1920" height="1080" alt="Screenshot (289)" src="https://github.com/user-attachments/assets/bc56006d-fa5b-44c5-a7cd-8ff437e2839c" />
+
 
 ---
 
@@ -216,7 +218,7 @@ Replace these images with actual screenshots after deployment.
 /screenshots/admin-dashboard.png
 ```
 
-<img src="./screenshots/admin-dashboard.png" alt="Admin Dashboard" />
+<img width="1920" height="1080" alt="Screenshot (285)" src="https://github.com/user-attachments/assets/e12b77f0-d629-4f76-9c1e-3213acdf203b" />
 
 ---
 
