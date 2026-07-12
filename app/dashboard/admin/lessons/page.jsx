@@ -17,7 +17,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { useRole } from '@/hooks/useRole'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { getAdminLessons, adminToggleFeature, adminToggleReview, adminDeleteLesson } from '@/services/adminApi'
 import { useDebounce } from '@/hooks/useDebounce'
 import toast from 'react-hot-toast'
@@ -50,7 +49,6 @@ function LessonsTableSkeleton() {
 export default function AdminLessonsPage() {
   const router = useRouter()
   const { isAdmin, isPending: rolePending } = useRole()
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -68,7 +66,7 @@ export default function AdminLessonsPage() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ['admin-lessons', debouncedSearch, categoryFilter, visibilityFilter],
-    queryFn: ({ pageParam = 1 }) => getAdminLessons(axiosSecure, {
+    queryFn: ({ pageParam = 1 }) => getAdminLessons({
       search: debouncedSearch,
       category: categoryFilter !== 'all' ? categoryFilter : undefined,
       visibility: visibilityFilter !== 'all' ? visibilityFilter : undefined,
@@ -120,19 +118,19 @@ export default function AdminLessonsPage() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const { mutate: toggleFeature, isPending: featurePending, variables: featureVars } = useMutation({
-    mutationFn: (id) => adminToggleFeature(id, axiosSecure),
+    mutationFn: (id) => adminToggleFeature(id),
     onSuccess: () => { toast.success('Feature status updated'); queryClient.invalidateQueries({ queryKey: ['admin-lessons'] }) },
     onError: () => toast.error('Failed to update feature'),
   })
 
   const { mutate: toggleReview, isPending: reviewPending, variables: reviewVars } = useMutation({
-    mutationFn: (id) => adminToggleReview(id, axiosSecure),
+    mutationFn: (id) => adminToggleReview(id),
     onSuccess: () => { toast.success('Review status updated'); queryClient.invalidateQueries({ queryKey: ['admin-lessons'] }) },
     onError: () => toast.error('Failed to update review'),
   })
 
   const { mutate: deleteLesson } = useMutation({
-    mutationFn: (id) => adminDeleteLesson(id, axiosSecure),
+    mutationFn: (id) => adminDeleteLesson(id),
     onSuccess: () => { toast.success('Lesson deleted'); queryClient.invalidateQueries({ queryKey: ['admin-lessons'] }) },
     onError: () => toast.error('Failed to delete lesson'),
   })

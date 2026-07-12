@@ -16,7 +16,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EmptyState } from '@/components/shared/EmptyState'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { useRole } from '@/hooks/useRole'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { getAdminUsers, updateUserRole, updateUserSubscription, deleteUser } from '@/services/adminApi'
 import { useDebounce } from '@/hooks/useDebounce'
 import Swal from 'sweetalert2'
@@ -84,20 +83,19 @@ export default function AdminUsersPage() {
   const router = useRouter()
   const { role, isAdmin, isCeo, isPending: rolePending } = useRole()
   const isAdminUser = role === 'admin'
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 400)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin-users', debouncedSearch],
-    queryFn: () => getAdminUsers(axiosSecure, { search: debouncedSearch }),
+    queryFn: () => getAdminUsers({ search: debouncedSearch }),
     enabled: isAdmin,
     retry: false,
   })
 
   const { mutate: changeRole, isPending: changingRole, variables } = useMutation({
-    mutationFn: ({ userId, role }) => updateUserRole(userId, role, axiosSecure),
+    mutationFn: ({ userId, role }) => updateUserRole(userId, role),
     onSuccess: () => {
       toast.success('Role updated successfully')
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
@@ -106,7 +104,7 @@ export default function AdminUsersPage() {
   })
 
   const { mutate: changeSubscription, isPending: changingSubscription, variables: subVars } = useMutation({
-    mutationFn: ({ userId, isPremium }) => updateUserSubscription(userId, isPremium, axiosSecure),
+    mutationFn: ({ userId, isPremium }) => updateUserSubscription(userId, isPremium),
     onSuccess: () => {
       toast.success('Subscription updated successfully')
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })
@@ -115,7 +113,7 @@ export default function AdminUsersPage() {
   })
 
   const { mutate: deleteUserMutate, isPending: deletingUser, variables: deleteVars } = useMutation({
-    mutationFn: (userId) => deleteUser(userId, axiosSecure),
+    mutationFn: (userId) => deleteUser(userId),
     onSuccess: () => {
       toast.success('User deleted')
       queryClient.invalidateQueries({ queryKey: ['admin-users'] })

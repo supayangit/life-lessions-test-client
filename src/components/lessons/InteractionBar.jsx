@@ -22,7 +22,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { addLike, removeLike } from '@/services/likesApi'
 import { submitReport, REPORT_REASONS } from '@/services/reportsApi'
 import { addFavorite, removeFavorite } from '@/services/favoritesApi'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 
 /**
  * InteractionBar — Like, Favorite, Share (Facebook/LinkedIn/X), Report
@@ -44,7 +43,6 @@ export function InteractionBar({
   isLiked = false,
   isFavorited = false,
 }) {
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { isAuthenticated } = useAuth()
 
@@ -71,7 +69,7 @@ export function InteractionBar({
   /* ── Like (optimistic) ── */
   const likeMutation = useMutation({
     mutationFn: ({ nextLiked }) =>
-      nextLiked ? addLike(lessonId, axiosSecure) : removeLike(lessonId, axiosSecure),
+      nextLiked ? addLike(lessonId) : removeLike(lessonId),
     onMutate: ({ nextLiked }) => {
       console.log('Like toggle requested:', {
         lessonId,
@@ -112,8 +110,8 @@ export function InteractionBar({
   const favMutation = useMutation({
     mutationFn: ({ nextFavorited }) =>
       nextFavorited
-        ? addFavorite(lessonId, axiosSecure)
-        : removeFavorite(lessonId, axiosSecure),
+        ? addFavorite(lessonId)
+        : removeFavorite(lessonId),
     onMutate: ({ nextFavorited }) => {
       console.log('Favorite toggle requested:', {
         lessonId,
@@ -159,7 +157,7 @@ export function InteractionBar({
 
   /* ── Report ── */
   const reportMutation = useMutation({
-    mutationFn: (reason) => submitReport(lessonId, reason, axiosSecure),
+    mutationFn: (reason) => submitReport(lessonId, reason),
     onSuccess: () => toast.success('Report submitted. Thank you for keeping our community safe.'),
     onError: () => toast.error('Failed to submit report'),
   })

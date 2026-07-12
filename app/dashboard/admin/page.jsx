@@ -32,7 +32,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/shared/ErrorState'
 import { useRole } from '@/hooks/useRole'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { getAdminOverview } from '@/services/adminApi'
 
 // ── Animated counter ──────────────────────────────────────────────────────
@@ -85,11 +84,10 @@ function StatCard({ label, value, icon: Icon, color, loading }) {
 export default function AdminOverviewPage() {
   const router = useRouter()
   const { isAdmin, isPending: rolePending } = useRole()
-  const axiosSecure = useAxiosSecure()
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['admin-overview'],
-    queryFn: () => getAdminOverview(axiosSecure),
+    queryFn: () => getAdminOverview(),
     enabled: isAdmin,
     retry: false,
   })

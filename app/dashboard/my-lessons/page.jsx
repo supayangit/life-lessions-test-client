@@ -38,7 +38,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { getMyLessons, deleteLesson, toggleVisibility, toggleAccessLevel } from '@/services/lessonApi'
 
@@ -53,7 +52,6 @@ function LessonRowSkeleton() {
 }
 
 function MyLessonsContent() {
-  const axiosSecure = useAxiosSecure()
   const { isPremium } = usePremium()
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -77,7 +75,7 @@ function MyLessonsContent() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ['my-lessons'],
-    queryFn: ({ pageParam = 1 }) => getMyLessons(axiosSecure, pageParam, 10),
+    queryFn: ({ pageParam = 1 }) => getMyLessons(pageParam, 10),
     getNextPageParam: (lastPage) => {
       if (lastPage?.pagination?.hasNextPage) {
         return lastPage.pagination.page + 1
@@ -140,7 +138,7 @@ function MyLessonsContent() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => deleteLesson(id, axiosSecure),
+    mutationFn: (id) => deleteLesson(id),
     onSuccess: () => {
       toast.success('Lesson deleted')
       queryClient.invalidateQueries({ queryKey: ['my-lessons'] })
@@ -150,7 +148,7 @@ function MyLessonsContent() {
   })
 
   const visibilityMutation = useMutation({
-    mutationFn: (id) => toggleVisibility(id, axiosSecure),
+    mutationFn: (id) => toggleVisibility(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['my-lessons'] })
       const prev = queryClient.getQueryData(['my-lessons'])
@@ -173,7 +171,7 @@ function MyLessonsContent() {
   })
 
   const accessMutation = useMutation({
-    mutationFn: (id) => toggleAccessLevel(id, axiosSecure),
+    mutationFn: (id) => toggleAccessLevel(id),
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['my-lessons'] })
       const prev = queryClient.getQueryData(['my-lessons'])

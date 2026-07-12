@@ -31,7 +31,7 @@ export default function UpdateLessonPage({ params }) {
   const lesson = lessonData?.lesson || lessonData
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (lessonData) => updateLesson(id, lessonData, axiosSecure),
+    mutationFn: (lessonData) => updateLesson(id, lessonData),
     onSuccess: () => {
       toast.success('Lesson updated successfully!')
       queryClient.invalidateQueries({ queryKey: ['my-lessons'] })

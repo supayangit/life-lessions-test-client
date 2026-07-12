@@ -17,7 +17,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { useAuth } from '@/hooks/useAuth'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { getComments, addComment, deleteComment } from '@/services/commentsApi'
 
 const MOCK_COMMENTS = [
@@ -81,7 +80,6 @@ function CommentItem({ comment, currentUserId, onDelete }) {
  * @param {{ lessonId: string }} props
  */
 export function CommentsSection({ lessonId }) {
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { user, isAuthenticated } = useAuth()
   const [draft, setDraft] = useState('')
@@ -148,7 +146,7 @@ export function CommentsSection({ lessonId }) {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const postMutation = useMutation({
-    mutationFn: (content) => addComment(lessonId, content, axiosSecure),
+    mutationFn: (content) => addComment(lessonId, content),
     onMutate: async (content) => {
       console.log(`[CommentsSection] Optimistically adding comment for lesson ${lessonId}`, { content })
       await queryClient.cancelQueries({ queryKey: ['comments', lessonId] })
@@ -191,7 +189,7 @@ export function CommentsSection({ lessonId }) {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (commentId) => deleteComment(commentId, axiosSecure),
+    mutationFn: (commentId) => deleteComment(commentId),
     onMutate: async (commentId) => {
       console.log(`[CommentsSection] Optimistically deleting comment ${commentId} for lesson ${lessonId}`)
       await queryClient.cancelQueries({ queryKey: ['comments', lessonId] })

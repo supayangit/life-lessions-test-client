@@ -23,7 +23,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { useRole } from '@/hooks/useRole'
 import { usePremium } from '@/hooks/usePremium'
 import { createCheckoutSession } from '@/services/paymentsApi'
@@ -60,14 +59,13 @@ function CheckIcon({ value }) {
 }
 
 export default function PricingPageClient() {
-  const axiosSecure = useAxiosSecure()
   const { isPending: rolePending } = useRole()
   const { isPremium } = usePremium()
   const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
   const hasStripeKey = Boolean(stripePublishableKey)
 
   const { mutate: checkout, isPending } = useMutation({
-    mutationFn: () => createCheckoutSession(axiosSecure),
+    mutationFn: () => createCheckoutSession(),
     onSuccess: (data) => {
       if (data?.url) {
         window.location.href = data.url

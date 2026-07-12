@@ -25,7 +25,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { useAuth } from '@/hooks/useAuth'
 import { usePremium } from '@/hooks/usePremium'
 import { getDashboardOverview } from '@/services/dashboardApi'
@@ -55,13 +54,12 @@ function StatCard({ label, value, icon: Icon, color, loading }) {
 }
 
 function DashboardContent() {
-  const axiosSecure = useAxiosSecure()
   const { user } = useAuth()
   const { isPremium } = usePremium()
 
   const { data: overview, isLoading, isError, refetch } = useQuery({
     queryKey: ['dashboard-overview'],
-    queryFn: () => getDashboardOverview(axiosSecure),
+    queryFn: () => getDashboardOverview(),
     retry: false,
   })
 

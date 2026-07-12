@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/select'
 import { LessonCard } from '@/components/lessons/LessonCard'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { getMyFavorites, removeFavorite } from '@/services/favoritesApi'
 
@@ -24,7 +23,6 @@ const TONES = ['All', 'Reflective', 'Hopeful', 'Cautionary', 'Motivational', 'Me
 const PAGE_SIZE = 6
 
 export default function MyFavoritesPage() {
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { isPremium } = usePremium()
 
@@ -99,7 +97,7 @@ export default function MyFavoritesPage() {
   }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   const removeMutation = useMutation({
-    mutationFn: (lessonId) => removeFavorite(lessonId, axiosSecure),
+    mutationFn: (lessonId) => removeFavorite(lessonId),
     onMutate: async (lessonId) => {
       await queryClient.cancelQueries({ queryKey: ['my-favorites', search, category, tone] })
       const prev = queryClient.getQueryData(['my-favorites', search, category, tone])

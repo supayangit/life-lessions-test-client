@@ -7,18 +7,16 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LessonForm } from '@/components/dashboard/LessonForm'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { usePremium } from '@/hooks/usePremium'
 import { createLesson } from '@/services/lessonApi'
 
 function AddLessonContent() {
   const router = useRouter()
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { isPremium } = usePremium()
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (lessonData) => createLesson(lessonData, axiosSecure),
+    mutationFn: (lessonData) => createLesson(lessonData),
     onSuccess: () => {
       toast.success('Lesson published successfully!')
       queryClient.invalidateQueries({ queryKey: ['my-lessons'] })

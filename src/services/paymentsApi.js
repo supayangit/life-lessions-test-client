@@ -8,8 +8,7 @@ import axiosPublic from './axios'
  * Create a Stripe Checkout session for the Premium plan.
  * Returns { url } — the Stripe-hosted checkout URL.
  */
-export async function createCheckoutSession(axiosSecure) {
-  const instance = axiosSecure || axiosPublic
-  const { data } = await instance.post('/api/payments/create-checkout-session')
+export async function createCheckoutSession() {
+  const { data } = await axiosPublic.post('/api/payments/create-checkout-session')
   return data
 }

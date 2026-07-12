@@ -27,7 +27,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
 import { LessonCard } from '@/components/lessons/LessonCard'
-import { useAxiosSecure } from '@/hooks/useAxiosSecure'
 import { useAuth } from '@/hooks/useAuth'
 import { usePremium } from '@/hooks/usePremium'
 import { useRole } from '@/hooks/useRole'
@@ -54,7 +53,6 @@ function StatCard({ icon: Icon, value, label, color }) {
 }
 
 export default function ProfilePageClient() {
-  const axiosSecure = useAxiosSecure()
   const queryClient = useQueryClient()
   const { user } = useAuth()
   const { role, isAdmin, isCeo } = useRole()
@@ -63,7 +61,7 @@ export default function ProfilePageClient() {
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['my-profile'],
-    queryFn: () => getMyProfile(axiosSecure),
+    queryFn: () => getMyProfile(),
     retry: false,
   })
 
@@ -78,7 +76,7 @@ export default function ProfilePageClient() {
     hasNextPage,
   } = useInfiniteQuery({
     queryKey: ['my-public-lessons'],
-    queryFn: ({ pageParam = 1 }) => getMyLessons(axiosSecure, pageParam, 6),
+    queryFn: ({ pageParam = 1 }) => getMyLessons(pageParam, 6),
     getNextPageParam: (lastPage) => {
       if (lastPage?.pagination?.hasNextPage) {
         return lastPage.pagination.page + 1

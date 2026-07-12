@@ -53,29 +53,26 @@ export async function getMostSavedLessons() {
 }
 
 /**
- * Create a new lesson (authenticated).
+ * Create a new lesson.
  */
-export async function createLesson(lessonData, axiosSecure) {
-  const instance = axiosSecure || axiosPublic
-  const { data } = await instance.post('/api/lessons', lessonData)
+export async function createLesson(lessonData) {
+  const { data } = await axiosPublic.post('/api/lessons', lessonData)
   return data
 }
 
 /**
- * Update an existing lesson (authenticated).
+ * Update an existing lesson.
  */
-export async function updateLesson(id, lessonData, axiosSecure) {
-  const instance = axiosSecure || axiosPublic
-  const { data } = await instance.put(`/api/lessons/${id}`, lessonData)
+export async function updateLesson(id, lessonData) {
+  const { data } = await axiosPublic.put(`/api/lessons/${id}`, lessonData)
   return data
 }
 
 /**
- * Delete a lesson (authenticated).
+ * Delete a lesson.
  */
-export async function deleteLesson(id, axiosSecure) {
-  const instance = axiosSecure || axiosPublic
-  const { data } = await instance.delete(`/api/lessons/${id}`)
+export async function deleteLesson(id) {
+  const { data } = await axiosPublic.delete(`/api/lessons/${id}`)
   return data
 }
 
