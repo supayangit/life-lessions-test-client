@@ -2,9 +2,9 @@
   "name": "my-project",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@9.8.5",
+  "packageManager": "pnpm@10.5.0",
   "engines": {
-    "node": "^20.0.0"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
