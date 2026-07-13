@@ -97,12 +97,25 @@ export async function login({ email, password }) {
     // but others require fetching the session afterwards. Try both.
     let token = extractTokenFromSession(response)
 
-    try {
-      const session = await authClient.getSession()
-      const sessionToken = extractTokenFromSession(session)
-      if (sessionToken) token = sessionToken
-    } catch (error) {
-      console.warn('Post-login session fetch failed:', error)
+    // If token not present immediately, retry `getSession` a few times to
+    // allow the browser to store cookies from the sign-in response.
+    if (!token) {
+      const maxAttempts = 4
+      const delayMs = 250
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const session = await authClient.getSession()
+          const sessionToken = extractTokenFromSession(session)
+          if (sessionToken) {
+            token = sessionToken
+            break
+          }
+        } catch (error) {
+          // on transient failures, keep retrying
+        }
+        // small backoff before next try
+        await new Promise((r) => setTimeout(r, delayMs))
+      }
     }
 
     if (token) persistAuthToken(token)
@@ -129,12 +142,27 @@ export async function signInWithGoogle() {
     // Persist token if available from the immediate response or from
     // the post-redirect session fetch.
     let token = extractTokenFromSession(response)
-    try {
-      const session = await authClient.getSession()
-      const sessionToken = extractTokenFromSession(session)
-      if (sessionToken) token = sessionToken
-    } catch (error) {
-      console.warn('Post-google-login session fetch failed:', error)
+
+    // After social sign-in (which may redirect), the cookie may not be
+    // immediately visible to the client. Retry `getSession` a few times
+    // to reduce flakiness where the backend has set cookies but the
+    // browser hasn't attached them to subsequent requests yet.
+    if (!token) {
+      const maxAttempts = 6
+      const delayMs = 300
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const session = await authClient.getSession()
+          const sessionToken = extractTokenFromSession(session)
+          if (sessionToken) {
+            token = sessionToken
+            break
+          }
+        } catch (error) {
+          // ignore and retry
+        }
+        await new Promise((r) => setTimeout(r, delayMs))
+      }
     }
 
     if (token) persistAuthToken(token)
