@@ -29,6 +29,9 @@ export async function getMyProfile(axiosSecure) {
       }
     }
   }
+  try {
+    console.log('[api] getMyProfile.call', { instance: axiosSecure ? 'axiosSecure' : 'axiosPublic', config })
+  } catch (e) {}
 
   const { data } = await instance.get('/api/users/me', config)
   return data

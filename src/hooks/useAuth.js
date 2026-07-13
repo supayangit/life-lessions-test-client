@@ -32,15 +32,31 @@ export function useAuth() {
 
   const isAuthLoading = isLoading || isPending || isFetching
 
+  const refetchUserWithRetry = async (maxAttempts = 6, delayMs = 250) => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      console.log('[auth] refetchUser.attempt', { attempt, maxAttempts })
+      const result = await refetch()
+      if (result?.data) {
+        console.log('[auth] refetchUser.success', { attempt })
+        return result
+      }
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+      }
+    }
+    console.warn('[auth] refetchUser.failed', { maxAttempts })
+    return null
+  }
+
   const loginWithRefresh = async (credentials) => {
     const response = await login(credentials)
-    await refetch()
+    await refetchUserWithRetry()
     return response
   }
 
   const signInWithGoogleWithRefresh = async () => {
     const response = await signInWithGoogle()
-    await refetch()
+    await refetchUserWithRetry()
     return response
   }
 

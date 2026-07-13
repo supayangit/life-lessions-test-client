@@ -30,12 +30,22 @@ axiosPublic.interceptors.request.use((config) => {
   } catch (e) {
     // ignore storage errors
   }
+  try {
+    const url = `${config.baseURL || ''}${config.url || ''}`
+    const hasAuth = !!(config.headers && (config.headers.Authorization || config.headers.authorization))
+    console.log('[http] axiosPublic.request', { url, hasAuth })
+  } catch (e) {}
   return config
 })
 
 axiosPublic.interceptors.response.use(
   (response) => response,
   (error) => {
+    try {
+      if (error?.response?.status === 401) {
+        console.warn('[http] axiosPublic.response.401', { url: error.config?.url })
+      }
+    } catch (e) {}
     return Promise.reject(error)
   }
 )

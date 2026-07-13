@@ -32,6 +32,9 @@ export function useAxiosSecure() {
           config.headers.Authorization = `Bearer ${token}`
         }
       }
+      try {
+        console.log('[http] axiosSecure.attachToken', { tokenPresent: !!token })
+      } catch (e) {}
       return config
     })
 
@@ -39,9 +42,12 @@ export function useAxiosSecure() {
     instance.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response?.status === 401) {
-          await logout()
-        }
+        try {
+          if (error.response?.status === 401) {
+            console.warn('[http] axiosSecure.response.401', { url: error.config?.url })
+            await logout()
+          }
+        } catch (e) {}
         return Promise.reject(error)
       }
     )

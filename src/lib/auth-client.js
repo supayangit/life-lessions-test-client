@@ -14,6 +14,7 @@ const isBrowser = typeof window !== 'undefined'
 const extractTokenFromSession = (session) => {
   return (
     session?.token ||
+    session?.session?.token ||
     session?.data?.session?.token ||
     session?.data?.token ||
     session?.data?.session?.accessToken ||
@@ -29,6 +30,31 @@ const persistAuthToken = (token) => {
   } catch {
     // ignore localStorage failures
   }
+}
+
+const persistTokenFromSession = (session) => {
+  const token = extractTokenFromSession(session)
+  if (token) persistAuthToken(token)
+}
+
+const buildAuthHeaders = () => {
+  const token = getStoredAuthToken()
+  if (!token) return {}
+  return { Authorization: `Bearer ${token}` }
+}
+
+const fetchWithAuthFallback = async (input, init = {}) => {
+  const headers = new Headers(init.headers || {})
+  const authHeaders = buildAuthHeaders()
+  if (authHeaders.Authorization && !headers.has('Authorization')) {
+    headers.set('Authorization', authHeaders.Authorization)
+  }
+  const response = await fetch(input, {
+    ...init,
+    credentials: 'include',
+    headers,
+  })
+  return response
 }
 
 export const getStoredAuthToken = () => {
@@ -58,6 +84,7 @@ export const authClient = createAuthClient({
   fetchOptions: {
     credentials: 'include',
   },
+  fetch: fetchWithAuthFallback,
 });
 
 // ============ AUTHENTICATION FUNCTIONS ============
@@ -88,37 +115,44 @@ export async function login({ email, password }) {
   try {
     if (!isBrowser) throw new Error('login must be called from the browser')
 
+    console.log('[auth] signIn.request', { method: 'email', email })
     const response = await authClient.signIn.email({
       email,
       password,
     });
 
+    console.log('[auth] signIn.response', { success: !response?.error, tokenPresent: !!extractTokenFromSession(response) })
+
     // Some environments return the token directly from the sign-in response,
     // but others require fetching the session afterwards. Try both.
     let token = extractTokenFromSession(response)
-
-    // If token not present immediately, retry `getSession` a few times to
-    // allow the browser to store cookies from the sign-in response.
     if (!token) {
-      const maxAttempts = 4
-      const delayMs = 250
+      const maxAttempts = 6
+      const delayMs = 300
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          const session = await authClient.getSession()
+          console.log('[auth] getSession.attempt', { attempt, maxAttempts })
+          const session = await getSession()
+          persistTokenFromSession(session)
           const sessionToken = extractTokenFromSession(session)
           if (sessionToken) {
             token = sessionToken
+            console.log('[auth] getSession.success', { attempt })
             break
           }
         } catch (error) {
-          // on transient failures, keep retrying
+          console.warn('[auth] getSession.error', { attempt, error: error?.message })
         }
-        // small backoff before next try
         await new Promise((r) => setTimeout(r, delayMs))
       }
     }
 
-    if (token) persistAuthToken(token)
+    if (token) {
+      persistAuthToken(token)
+      try {
+        console.log('[auth] token.persisted', { key: AUTH_TOKEN_STORAGE_KEY, preview: token?.slice?.(0,8) })
+      } catch (e) {}
+    }
 
     return response;
   } catch (error) {
@@ -134,6 +168,7 @@ export async function signInWithGoogle() {
   try {
     if (!isBrowser) throw new Error('signInWithGoogle must be called from the browser')
 
+    console.log('[auth] signIn.request', { method: 'google' })
     const response = await authClient.signIn.social({
       provider: "google",
       callbackURL: `${typeof window !== "undefined" ? window.location.origin : ""}/`,
@@ -142,24 +177,28 @@ export async function signInWithGoogle() {
     // Persist token if available from the immediate response or from
     // the post-redirect session fetch.
     let token = extractTokenFromSession(response)
+    console.log('[auth] signIn.response', { method: 'google', tokenPresent: !!token })
 
     // After social sign-in (which may redirect), the cookie may not be
     // immediately visible to the client. Retry `getSession` a few times
     // to reduce flakiness where the backend has set cookies but the
     // browser hasn't attached them to subsequent requests yet.
     if (!token) {
-      const maxAttempts = 6
+      const maxAttempts = 8
       const delayMs = 300
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         try {
-          const session = await authClient.getSession()
+          console.log('[auth] getSession.attempt (social)', { attempt, maxAttempts })
+          const session = await getSession()
+          persistTokenFromSession(session)
           const sessionToken = extractTokenFromSession(session)
           if (sessionToken) {
             token = sessionToken
+            console.log('[auth] getSession.success (social)', { attempt })
             break
           }
         } catch (error) {
-          // ignore and retry
+          console.warn('[auth] getSession.error (social)', { attempt, error: error?.message })
         }
         await new Promise((r) => setTimeout(r, delayMs))
       }
@@ -223,9 +262,31 @@ export async function updateUserProfile(profileData) {
  */
 export async function getSession() {
   try {
-    const session = await authClient.getSession();
-    const token = extractTokenFromSession(session)
-    if (token) persistAuthToken(token)
+    let session = await authClient.getSession();
+    if (!session?.user) {
+      console.log('[auth] getSession.cookie.failed', { tokenStored: !!getStoredAuthToken() })
+      const token = getStoredAuthToken()
+      if (token) {
+        try {
+          const endpoint = `${AUTH_URL.replace(/\/$/, '')}/get-session`
+          const response = await fetchWithAuthFallback(endpoint, {
+            method: 'GET',
+          })
+          if (response.ok) {
+            const json = await response.json()
+            if (json?.session) {
+              session = json.session
+              console.log('[auth] getSession.tokenFallback.success', { endpoint })
+            }
+          } else {
+            console.warn('[auth] getSession.tokenFallback.failed', { status: response.status, endpoint })
+          }
+        } catch (tokenError) {
+          console.warn('[auth] getSession.tokenFallback.error', tokenError?.message)
+        }
+      }
+    }
+    persistTokenFromSession(session)
     return session;
   } catch (error) {
     console.error("Get session error:", error);
