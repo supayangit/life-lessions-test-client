@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 import { Crown, BookOpen, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 
 function SuccessCheckmark() {
   return (
@@ -36,10 +35,11 @@ const NEXT_STEPS = [
 ]
 
 export default function PaymentSuccessPage() {
-  const searchParams = useSearchParams()
-  const sessionId = searchParams?.get('session_id')
-
   useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const searchParams = new URLSearchParams(window.location.search)
+    const sessionId = searchParams.get('session_id')
     if (!sessionId) return
 
     const confirmPremium = async () => {
@@ -54,7 +54,7 @@ export default function PaymentSuccessPage() {
     }
 
     confirmPremium()
-  }, [sessionId])
+  }, [])
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -94,7 +94,7 @@ export default function PaymentSuccessPage() {
             'Priority support from our team',
           ].map((perk) => (
             <div key={perk} className="flex items-center gap-2.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+              <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
               <span className="text-sm text-foreground">{perk}</span>
             </div>
           ))}
