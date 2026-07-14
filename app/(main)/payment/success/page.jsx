@@ -49,6 +49,7 @@ export default function PaymentSuccessPage() {
       try {
         const response = await fetch(`/api/payments/confirm-checkout-session?session_id=${encodeURIComponent(sessionId)}`, {
           method: 'GET',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         })
 

@@ -79,6 +79,10 @@ export async function GET(req) {
     return Response.json({ success: true })
   } catch (error) {
     console.error('GET /api/payments/confirm-checkout-session error:', error)
-    return Response.json({ error: 'Failed to confirm checkout session' }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+    return Response.json(
+      { error: process.env.NODE_ENV === 'production' ? 'Failed to confirm checkout session' : errorMessage },
+      { status: 500 }
+    )
   }
 }
