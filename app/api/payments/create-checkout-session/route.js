@@ -1,6 +1,7 @@
 import Stripe from 'stripe'
 import { auth, db } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
+import { resolveAuthSession, normalizeHeaders } from '@/lib/auth-utils'
 
 function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY
@@ -31,8 +32,9 @@ function buildUserFilter(userId) {
 
 export async function POST(req) {
   try {
+    const headers = normalizeHeaders(req.headers)
     const session = (auth.api && auth.api.getSession)
-      ? await auth.api.getSession({ headers: req.headers })
+      ? await resolveAuthSession(auth, headers)
       : null
 
     if (!session?.user) {

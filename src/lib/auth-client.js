@@ -13,14 +13,27 @@ const isBrowser = typeof window !== 'undefined'
 
 const extractTokenFromSession = (session) => {
   return (
-    session?.token ||
-    session?.session?.token ||
     session?.data?.session?.token ||
     session?.data?.token ||
+    session?.session?.token ||
+    session?.token ||
     session?.data?.session?.accessToken ||
     session?.data?.session?.access_token ||
     null
   )
+}
+
+const persistAuthTokenFromResponse = (response) => {
+  if (!isBrowser || !response?.headers?.get) return
+  try {
+    const headerToken = response.headers.get('set-auth-token')
+    if (headerToken) {
+      persistAuthToken(headerToken)
+      console.log('[auth] set-auth-token persisted', { preview: headerToken.slice(0, 8) })
+    }
+  } catch (e) {
+    // ignore if response headers not accessible
+  }
 }
 
 const persistAuthToken = (token) => {
@@ -43,17 +56,47 @@ const buildAuthHeaders = () => {
   return { Authorization: `Bearer ${token}` }
 }
 
+const debugAuthResponse = (response, input) => {
+  if (!isBrowser || !response?.headers?.get) return
+  try {
+    const setAuthTokenHeader = response.headers.get('set-auth-token')
+    console.log('[auth] fetchWithAuthFallback.response', {
+      url: String(input),
+      status: response.status,
+      ok: response.ok,
+      hasSetAuthToken: Boolean(setAuthTokenHeader),
+      setAuthTokenPreview: setAuthTokenHeader ? setAuthTokenHeader.slice(0, 8) : null,
+    })
+  } catch (e) {
+    console.warn('[auth] fetchWithAuthFallback.response.error', e?.message || e)
+  }
+}
+
 const fetchWithAuthFallback = async (input, init = {}) => {
   const headers = new Headers(init.headers || {})
   const authHeaders = buildAuthHeaders()
   if (authHeaders.Authorization && !headers.has('Authorization')) {
     headers.set('Authorization', authHeaders.Authorization)
   }
+
+  try {
+    console.log('[auth] fetchWithAuthFallback.request', {
+      url: String(input),
+      hasAuthorization: headers.has('Authorization'),
+      authHeaderPreview: headers.has('Authorization') ? 'present' : 'absent',
+    })
+  } catch (e) {
+    // ignore logging failures
+  }
+
   const response = await fetch(input, {
     ...init,
     credentials: 'include',
     headers,
   })
+
+  persistAuthTokenFromResponse(response)
+  debugAuthResponse(response, input)
   return response
 }
 
@@ -296,3 +339,4 @@ export async function getSession() {
 
 // ============ RE-EXPORTS ============
 export const { useSession, signIn, signUp, signOut } = authClient;
+export { extractTokenFromSession };

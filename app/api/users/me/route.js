@@ -1,5 +1,6 @@
 import { auth, db } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
+import { resolveAuthSession, normalizeHeaders } from '@/lib/auth-utils'
 
 /**
  * GET /api/user/me
@@ -7,9 +8,9 @@ import { ObjectId } from 'mongodb'
  */
 export async function GET(req) {
   try {
-    // Try to get session from better-auth; fallback to unauthorized
+    const headers = normalizeHeaders(req.headers)
     const session = (auth.api && auth.api.getSession)
-      ? await auth.api.getSession({ headers: req.headers })
+      ? await resolveAuthSession(auth, headers)
       : null
 
     if (!session?.user) {
@@ -64,7 +65,8 @@ export async function GET(req) {
  */
 export async function PUT(req) {
   try {
-    const session = await auth.api.getSession({ headers: req.headers })
+    const headers = normalizeHeaders(req.headers)
+    const session = await resolveAuthSession(auth, headers)
 
     if (!session?.user) {
       return Response.json(
