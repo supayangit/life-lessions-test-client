@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import {
-  BookOpen, Search, Star, CheckCircle, Trash2, Filter, Loader2, Crown,
+  BookOpen, Search, Star, CheckCircle, Trash2, Filter, Loader2, Crown, Sparkles,
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -201,59 +201,42 @@ export default function AdminLessonsPage() {
           ) : lessons.length === 0 ? (
             <EmptyState icon={BookOpen} title="No lessons found" description="Try adjusting your filters." />
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Feature</TableHead>
-                    <TableHead>Review</TableHead>
-                    <TableHead>Delete</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {lessons.map((lesson) => (
-                    <TableRow key={lesson._id} className={cn(lesson.isFlagged && 'bg-destructive/5')}>
-                      <TableCell className="max-w-[200px]">
-                        <div className="flex items-center gap-1.5">
+            <>
+              <div className="space-y-4 sm:hidden">
+                {lessons.map((lesson) => (
+                  <Card key={lesson._id} className="border border-border">
+                    <CardContent className="space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 space-y-1">
                           <Link
                             href={`/lesson/${lesson._id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-foreground line-clamp-1 hover:text-primary hover:underline"
+                            className="text-sm font-medium text-foreground line-clamp-2 hover:text-primary hover:underline"
                           >
                             {lesson.title}
                           </Link>
-                          {lesson.isFlagged && <Badge variant="destructive" className="text-[10px] h-4 px-1.5">Flagged</Badge>}
-                          {lesson.isPremium && <Sparkles className="h-3 w-3 text-accent flex-shrink-0" aria-label="Premium" />}
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span>{lesson.category || 'Uncategorized'}</span>
+                            <span>•</span>
+                            <span>{formatCreatorId(lesson.creatorId)}</span>
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="text-xs">{lesson.category}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/user/profile?userId=${lesson.creatorId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-muted-foreground hover:text-primary hover:underline"
-                        >
-                          {formatCreatorId(lesson.creatorId)}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
                         <Badge variant={lesson.visibility === 'public' ? 'outline' : 'secondary'} className="text-xs">
                           {lesson.visibility}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {lesson.isFlagged && <Badge variant="destructive" className="text-[10px] h-5 px-2">Flagged</Badge>}
+                        {lesson.isPremium && <Badge variant="secondary" className="text-[10px] h-5 px-2">Premium</Badge>}
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                         <Button
                           variant={lesson.featured ? 'default' : 'outline'}
                           size="sm"
-                          className="h-7 text-xs px-2.5 gap-1"
+                          className="h-10 text-xs px-2.5 gap-1 w-full"
                           onClick={() => toggleFeature(lesson._id)}
                           disabled={featurePending && featureVars === lesson._id}
                         >
@@ -262,12 +245,10 @@ export default function AdminLessonsPage() {
                             : <Star className="h-3 w-3" />}
                           {lesson.featured ? 'Featured' : 'Feature'}
                         </Button>
-                      </TableCell>
-                      <TableCell>
                         <Button
                           variant={lesson.reviewed ? 'default' : 'outline'}
                           size="sm"
-                          className="h-7 text-xs px-2.5 gap-1"
+                          className="h-10 text-xs px-2.5 gap-1 w-full"
                           onClick={() => toggleReview(lesson._id)}
                           disabled={reviewPending && reviewVars === lesson._id}
                         >
@@ -276,22 +257,114 @@ export default function AdminLessonsPage() {
                             : <CheckCircle className="h-3 w-3" />}
                           {lesson.reviewed ? 'Reviewed' : 'Review'}
                         </Button>
-                      </TableCell>
-                      <TableCell>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                          className="h-10 w-full rounded-md text-destructive border border-border hover:bg-destructive/10"
                           onClick={() => handleDelete(lesson)}
                           aria-label="Delete lesson"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      </TableCell>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Author</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Feature</TableHead>
+                      <TableHead>Review</TableHead>
+                      <TableHead>Delete</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {lessons.map((lesson) => (
+                      <TableRow key={lesson._id} className={cn(lesson.isFlagged && 'bg-destructive/5')}>
+                        <TableCell className="max-w-[200px]">
+                          <div className="flex items-center gap-1.5">
+                            <Link
+                              href={`/lesson/${lesson._id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-medium text-foreground line-clamp-1 hover:text-primary hover:underline"
+                            >
+                              {lesson.title}
+                            </Link>
+                            {lesson.isFlagged && <Badge variant="destructive" className="text-[10px] h-4 px-1.5">Flagged</Badge>}
+                            {lesson.isPremium && <Sparkles className="h-3 w-3 text-accent flex-shrink-0" aria-label="Premium" />}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="text-xs">{lesson.category}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/user/profile?userId=${lesson.creatorId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                          >
+                            {formatCreatorId(lesson.creatorId)}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={lesson.visibility === 'public' ? 'outline' : 'secondary'} className="text-xs">
+                            {lesson.visibility}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant={lesson.featured ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-7 text-xs px-2.5 gap-1"
+                            onClick={() => toggleFeature(lesson._id)}
+                            disabled={featurePending && featureVars === lesson._id}
+                          >
+                            {featurePending && featureVars === lesson._id
+                              ? <Loader2 className="h-3 w-3 animate-spin" />
+                              : <Star className="h-3 w-3" />}
+                            {lesson.featured ? 'Featured' : 'Feature'}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant={lesson.reviewed ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-7 text-xs px-2.5 gap-1"
+                            onClick={() => toggleReview(lesson._id)}
+                            disabled={reviewPending && reviewVars === lesson._id}
+                          >
+                            {reviewPending && reviewVars === lesson._id
+                              ? <Loader2 className="h-3 w-3 animate-spin" />
+                              : <CheckCircle className="h-3 w-3" />}
+                            {lesson.reviewed ? 'Reviewed' : 'Review'}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDelete(lesson)}
+                            aria-label="Delete lesson"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
               <div ref={sentinelRef} className="h-1" />
               {(isFetchingNextPage || hasNextPage) && (
                 <div className="mt-3 flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -305,7 +378,7 @@ export default function AdminLessonsPage() {
                   )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </CardContent>
       </Card>

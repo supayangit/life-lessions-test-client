@@ -237,7 +237,133 @@ function MyLessonsContent() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-border overflow-hidden">
+      {/* Mobile Card View */}
+      <div className="space-y-4 sm:hidden">
+        {isLoading ? (
+          [1, 2, 3].map((i) => (
+            <div key={i} className="rounded-xl border border-border bg-card p-4 space-y-3 animate-pulse">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <div className="space-y-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            </div>
+          ))
+        ) : lessons.length === 0 ? (
+          <div className="rounded-xl border border-border bg-card p-8 text-center text-muted-foreground">
+            No lessons yet.{' '}
+            <Link href="/dashboard/add-lesson" className="text-primary hover:underline">
+              Add your first lesson
+            </Link>
+          </div>
+        ) : (
+          lessons.map((lesson) => (
+            <div key={lesson._id} className="rounded-xl border border-border bg-card p-4 space-y-4">
+              {/* Title and Date */}
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <Link
+                    href={`/lesson/${lesson._id}`}
+                    className="text-sm font-medium text-foreground hover:text-primary hover:underline line-clamp-2 flex-1"
+                  >
+                    {lesson.title}
+                  </Link>
+                  <Link
+                    href={`/lesson/${lesson._id}`}
+                    className="flex-shrink-0 mt-0.5 text-muted-foreground hover:text-primary"
+                  >
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(lesson.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+
+              {/* Category and Badges */}
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs">{lesson.category}</Badge>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Heart className="h-3.5 w-3.5" />
+                  <span>{lesson.likesCount ?? 0}</span>
+                </div>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Bookmark className="h-3.5 w-3.5" />
+                  <span>{lesson.favoritesCount ?? 0}</span>
+                </div>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span>{lesson.commentsCount ?? 0}</span>
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="space-y-2">
+                <button
+                  className={`w-full h-8 gap-1.5 text-xs px-2 inline-flex items-center justify-center rounded-lg border border-transparent ${lesson.visibility === 'public' ? 'text-primary bg-muted/50' : 'text-muted-foreground bg-transparent border border-border'}`}
+                  onClick={() => handleVisibilityToggleClick(lesson._id)}
+                  disabled={visibilityMutation.isPending}
+                >
+                  {lesson.visibility === 'public' ? (
+                    <><Eye className="h-3.5 w-3.5" /> Public</>
+                  ) : (
+                    <><EyeOff className="h-3.5 w-3.5" /> Private</>
+                  )}
+                </button>
+                <button
+                  className={`w-full h-8 gap-1.5 text-xs px-2 inline-flex items-center justify-center rounded-lg border border-transparent ${lesson.accessLevel === 'premium' ? 'text-accent-foreground bg-muted/50' : 'text-muted-foreground bg-transparent border border-border'} ${!isPremium ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  onClick={() => { if (!isPremium) return; accessMutation.mutate(lesson._id) }}
+                  disabled={!isPremium || accessMutation.isPending}
+                  title={!isPremium ? 'Upgrade to Premium to change access level' : 'Toggle access level'}
+                >
+                  {lesson.accessLevel === 'premium' ? (
+                    <><Lock className="h-3.5 w-3.5" /> Premium</>
+                  ) : (
+                    <><Unlock className="h-3.5 w-3.5" /> Free</>
+                  )}
+                </button>
+              </div>
+
+              {/* Actions */}
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => router.push(`/lesson/${lesson._id}`)}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => router.push(`/dashboard/my-lessons/${lesson._id}`)}
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs text-destructive border-destructive/50 hover:bg-destructive/10"
+                  onClick={() => handleDeleteClick(lesson._id, lesson.title)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden sm:block rounded-xl border border-border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/40">

@@ -181,97 +181,104 @@ export default function AdminUsersPage() {
           ) : filtered.length === 0 ? (
             <EmptyState icon={Users} title="No users found" description="Try adjusting your search." />
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead className="text-left">Lessons</TableHead>
-                    <TableHead>Subscription</TableHead>
-                    <TableHead>Delete</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filtered.map((user) => {
-                    const initials = user.name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
-                    const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.user
-                    const isAdminRole = user.role === 'admin'
-                    const isCeoRole = user.role === 'ceo'
-                    const isTargetPrivileged = isAdminRole || isCeoRole
-                    const subscriptionValue = isCeoRole ? 'ceo' : (isAdminRole ? 'admin' : (user.isPremium ? 'premium' : 'free'))
-                    const subscriptionInfo = SUBSCRIPTION_LABELS[subscriptionValue]
-                    const isChangingRole = changingRole && variables?.userId === user._id
-                    const isChangingSubscription = changingSubscription && subVars?.userId === user._id
-                    const canChangeTargetRole = isCeo || (isAdminUser && !isTargetPrivileged)
-                    const canDeleteTargetUser = isCeo || (isAdminUser && !isTargetPrivileged)
-                    const roleOptions = isCeo
-                      ? ['user', 'contributor', 'curator', 'admin', 'ceo']
-                      : ['user', 'contributor', 'curator']
-                    const identityIcon = isCeoRole
-                      ? Crown
-                      : isAdminRole
-                        ? ShieldCheck
-                        : user.isPremium
-                          ? Sparkles
-                          : UserIcon
-                    const identityIconClass = isCeoRole
-                      ? 'h-3.5 w-3.5 text-violet-500'
-                      : isAdminRole
-                        ? 'h-3.5 w-3.5 text-destructive'
-                        : user.isPremium
-                          ? 'h-3.5 w-3.5 text-amber-500'
-                          : 'h-3.5 w-3.5 text-muted-foreground'
-                    const isDeleteDisabled = isCeoRole || !canDeleteTargetUser
+            <>
+              {/* Mobile Card View */}
+              <div className="space-y-4 sm:hidden p-4">
+                {filtered.map((user) => {
+                  const initials = user.name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
+                  const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.user
+                  const isAdminRole = user.role === 'admin'
+                  const isCeoRole = user.role === 'ceo'
+                  const isTargetPrivileged = isAdminRole || isCeoRole
+                  const subscriptionValue = isCeoRole ? 'ceo' : (isAdminRole ? 'admin' : (user.isPremium ? 'premium' : 'free'))
+                  const subscriptionInfo = SUBSCRIPTION_LABELS[subscriptionValue]
+                  const isChangingRole = changingRole && variables?.userId === user._id
+                  const isChangingSubscription = changingSubscription && subVars?.userId === user._id
+                  const canChangeTargetRole = isCeo || (isAdminUser && !isTargetPrivileged)
+                  const canDeleteTargetUser = isCeo || (isAdminUser && !isTargetPrivileged)
+                  const roleOptions = isCeo
+                    ? ['user', 'contributor', 'curator', 'admin', 'ceo']
+                    : ['user', 'contributor', 'curator']
+                  const identityIcon = isCeoRole
+                    ? Crown
+                    : isAdminRole
+                      ? ShieldCheck
+                      : user.isPremium
+                        ? Sparkles
+                        : UserIcon
+                  const identityIconClass = isCeoRole
+                    ? 'h-3.5 w-3.5 text-violet-500'
+                    : isAdminRole
+                      ? 'h-3.5 w-3.5 text-destructive'
+                      : user.isPremium
+                        ? 'h-3.5 w-3.5 text-amber-500'
+                        : 'h-3.5 w-3.5 text-muted-foreground'
+                  const isDeleteDisabled = isCeoRole || !canDeleteTargetUser
+                  const IdentityIcon = identityIcon
 
-                    return (
-                      <TableRow key={user._id}>
-                        <TableCell>
-                          <Link href={`/user/profile?userId=${user._id}`} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-                            <Avatar className="h-8 w-8 flex-shrink-0">
-                              <AvatarImage src={user.image} alt={user.name} />
-                              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{initials}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className="text-sm font-medium text-foreground whitespace-nowrap truncate">{user.name}</span>
-                              <identityIcon className={identityIconClass} />
-                            </div>
-                          </Link>
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
-                            {canChangeTargetRole ? (
-                              <Select
-                                value={user.role || 'user'}
-                                onValueChange={(role) => changeRole({ userId: user._id, role })}
-                                disabled={isChangingRole}
-                              >
-                                <SelectTrigger className="h-8 w-32 text-xs">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {roleOptions.map((roleOption) => (
-                                    <SelectItem key={roleOption} value={roleOption}>
-                                      {ROLE_LABELS[roleOption]?.label || roleOption}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Badge variant={roleInfo.variant} className={`text-xs flex items-center gap-1 ${roleInfo.className || ''}`}>
-                                {roleInfo.icon && <roleInfo.icon className="h-3.5 w-3.5" />}
-                                {roleInfo.label}
-                              </Badge>
-                            )}
-                            {isChangingRole && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                  return (
+                    <Card key={user._id} className="border border-border">
+                      <CardContent className="space-y-4 pt-6">
+                        {/* User Header */}
+                        <div className="flex items-start gap-3">
+                          <Avatar className="h-10 w-10 flex-shrink-0">
+                            <AvatarImage src={user.image} alt={user.name} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{initials}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <Link 
+                              href={`/user/profile?userId=${user._id}`}
+                              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity mb-1"
+                            >
+                              <span className="text-sm font-medium text-foreground truncate">{user.name}</span>
+                              <IdentityIcon className={identityIconClass} />
+                            </Link>
+                            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-left text-sm text-muted-foreground">{user.lessonsCount ?? 0}</TableCell>
-                        <TableCell>
+                        </div>
+
+                        {/* User Details */}
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center justify-between">
+                            <span className="text-muted-foreground">Lessons:</span>
+                            <span className="font-medium">{user.lessonsCount ?? 0}</span>
+                          </div>
+                        </div>
+
+                        {/* Role */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">Role</label>
+                          {canChangeTargetRole ? (
+                            <Select
+                              value={user.role || 'user'}
+                              onValueChange={(role) => changeRole({ userId: user._id, role })}
+                              disabled={isChangingRole}
+                            >
+                              <SelectTrigger className="h-9 text-xs w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roleOptions.map((roleOption) => (
+                                  <SelectItem key={roleOption} value={roleOption}>
+                                    {ROLE_LABELS[roleOption]?.label || roleOption}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <Badge variant={roleInfo.variant} className={`text-xs py-1 flex items-center gap-1 w-fit ${roleInfo.className || ''}`}>
+                              {roleInfo.icon && <roleInfo.icon className="h-3.5 w-3.5" />}
+                              {roleInfo.label}
+                            </Badge>
+                          )}
+                          {isChangingRole && <div className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" />Updating...</div>}
+                        </div>
+
+                        {/* Subscription */}
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium text-muted-foreground">Subscription</label>
                           {isAdmin ? (
-                            <Badge variant={subscriptionInfo.variant} className={`text-xs flex items-center gap-1 ${subscriptionInfo.className || ''}`}>
+                            <Badge variant={subscriptionInfo.variant} className={`text-xs py-1 flex items-center gap-1 w-fit ${subscriptionInfo.className || ''}`}>
                               {subscriptionInfo.icon && <subscriptionInfo.icon className="h-3.5 w-3.5" />}
                               {subscriptionInfo.label}
                             </Badge>
@@ -282,7 +289,7 @@ export default function AdminUsersPage() {
                                 onValueChange={(value) => changeSubscription({ userId: user._id, isPremium: value === 'premium' })}
                                 disabled={isChangingSubscription}
                               >
-                                <SelectTrigger className="h-8 w-28 text-xs">
+                                <SelectTrigger className="h-9 text-xs flex-1">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -293,46 +300,190 @@ export default function AdminUsersPage() {
                               {isChangingSubscription && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                             </div>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          {isDeleteDisabled ? (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDeleteUser(user)}
-                              disabled
-                              aria-label="Delete user"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          ) : canDeleteTargetUser ? (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                              onClick={() => handleDeleteUser(user)}
-                              disabled={deletingUser && deleteVars === user._id}
-                              aria-label="Delete user"
-                            >
-                              {deletingUser && deleteVars === user._id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+
+                        {/* Delete Button */}
+                        {!isDeleteDisabled && canDeleteTargetUser && (
+                          <Button
+                            variant="outline"
+                            className="w-full h-9 text-xs text-destructive border-destructive/50 hover:bg-destructive/10"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={deletingUser && deleteVars === user._id}
+                          >
+                            {deletingUser && deleteVars === user._id ? (
+                              <>
+                                <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                                Deleting...
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                                Delete User
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead className="text-left">Lessons</TableHead>
+                      <TableHead>Subscription</TableHead>
+                      <TableHead>Delete</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filtered.map((user) => {
+                      const initials = user.name?.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
+                      const roleInfo = ROLE_LABELS[user.role] || ROLE_LABELS.user
+                      const isAdminRole = user.role === 'admin'
+                      const isCeoRole = user.role === 'ceo'
+                      const isTargetPrivileged = isAdminRole || isCeoRole
+                      const subscriptionValue = isCeoRole ? 'ceo' : (isAdminRole ? 'admin' : (user.isPremium ? 'premium' : 'free'))
+                      const subscriptionInfo = SUBSCRIPTION_LABELS[subscriptionValue]
+                      const isChangingRole = changingRole && variables?.userId === user._id
+                      const isChangingSubscription = changingSubscription && subVars?.userId === user._id
+                      const canChangeTargetRole = isCeo || (isAdminUser && !isTargetPrivileged)
+                      const canDeleteTargetUser = isCeo || (isAdminUser && !isTargetPrivileged)
+                      const roleOptions = isCeo
+                        ? ['user', 'contributor', 'curator', 'admin', 'ceo']
+                        : ['user', 'contributor', 'curator']
+                      const identityIcon = isCeoRole
+                        ? Crown
+                        : isAdminRole
+                          ? ShieldCheck
+                          : user.isPremium
+                            ? Sparkles
+                            : UserIcon
+                      const identityIconClass = isCeoRole
+                        ? 'h-3.5 w-3.5 text-violet-500'
+                        : isAdminRole
+                          ? 'h-3.5 w-3.5 text-destructive'
+                          : user.isPremium
+                            ? 'h-3.5 w-3.5 text-amber-500'
+                            : 'h-3.5 w-3.5 text-muted-foreground'
+                      const isDeleteDisabled = isCeoRole || !canDeleteTargetUser
+                      const IdentityIcon = identityIcon
+
+                      return (
+                        <TableRow key={user._id}>
+                          <TableCell>
+                            <Link href={`/user/profile?userId=${user._id}`} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+                              <Avatar className="h-8 w-8 flex-shrink-0">
+                                <AvatarImage src={user.image} alt={user.name} />
+                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">{initials}</AvatarFallback>
+                              </Avatar>
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="text-sm font-medium text-foreground whitespace-nowrap truncate">{user.name}</span>
+                                <IdentityIcon className={identityIconClass} />
+                              </div>
+                            </Link>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {canChangeTargetRole ? (
+                                <Select
+                                  value={user.role || 'user'}
+                                  onValueChange={(role) => changeRole({ userId: user._id, role })}
+                                  disabled={isChangingRole}
+                                >
+                                  <SelectTrigger className="h-8 w-32 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {roleOptions.map((roleOption) => (
+                                      <SelectItem key={roleOption} value={roleOption}>
+                                        {ROLE_LABELS[roleOption]?.label || roleOption}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               ) : (
-                                <Trash2 className="h-4 w-4" />
+                                <Badge variant={roleInfo.variant} className={`text-xs flex items-center gap-1 ${roleInfo.className || ''}`}>
+                                  {roleInfo.icon && <roleInfo.icon className="h-3.5 w-3.5" />}
+                                  {roleInfo.label}
+                                </Badge>
                               )}
-                            </Button>
-                          ) : (
-                            <Badge variant="outline" className="text-xs">
-                              Protected
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                              {isChangingRole && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-left text-sm text-muted-foreground">{user.lessonsCount ?? 0}</TableCell>
+                          <TableCell>
+                            {isAdmin ? (
+                              <Badge variant={subscriptionInfo.variant} className={`text-xs flex items-center gap-1 ${subscriptionInfo.className || ''}`}>
+                                {subscriptionInfo.icon && <subscriptionInfo.icon className="h-3.5 w-3.5" />}
+                                {subscriptionInfo.label}
+                              </Badge>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <Select
+                                  value={subscriptionValue}
+                                  onValueChange={(value) => changeSubscription({ userId: user._id, isPremium: value === 'premium' })}
+                                  disabled={isChangingSubscription}
+                                >
+                                  <SelectTrigger className="h-8 w-28 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="free">Free</SelectItem>
+                                    <SelectItem value="premium">Premium</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                {isChangingSubscription && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {isDeleteDisabled ? (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeleteUser(user)}
+                                disabled
+                                aria-label="Delete user"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            ) : canDeleteTargetUser ? (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeleteUser(user)}
+                                disabled={deletingUser && deleteVars === user._id}
+                                aria-label="Delete user"
+                              >
+                                {deletingUser && deleteVars === user._id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            ) : (
+                              <Badge variant="outline" className="text-xs">
+                                Protected
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
